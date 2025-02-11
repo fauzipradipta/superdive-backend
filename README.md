@@ -2,4 +2,3 @@
 Backend Stack:
   - Spring Boot
   - MySQL Workspace Database
-  - 

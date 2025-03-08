@@ -1,31 +1,26 @@
 package com.example.superdive.backend.Entity;
 
+import java.math.BigDecimal;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "emergency_contact")
+@Table(name = "retails")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class EmergencyContact {
+public class Retail {
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long Id;
-	
-	private String ecName; 
-	private String ecPhone;
-	
-	@ManyToOne
-	@JoinColumn(name = "customer_id", nullable = false)
-	Customer customer;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    
+    private String name;
+    private BigDecimal price;
 }

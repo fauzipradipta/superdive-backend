@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -30,14 +31,12 @@ public class Customer {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
-	private String name; 
-	private String email;
-	
-	@Temporal(TemporalType.DATE)
-	private Date dob;
-	private String phoneNum; 
-	boolean isDiver;
-	
+    private String name;
+    private String email;
+    private String phoneNum;
+    private Date dob;
+    
+    private boolean isDiver;
 	@OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true)
 	 private List<DivingData> divingData = new ArrayList<>();
 

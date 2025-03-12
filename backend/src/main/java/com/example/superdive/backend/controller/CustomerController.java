@@ -18,8 +18,8 @@ public class CustomerController {
 	@Autowired
 	private CustomerService customerService;
 	
-	@PostMapping("/create-customer")
-    public ResponseEntity<Customer> createCustomer(@RequestBody Customer customer) {
+	@PostMapping(value = "/create-customer")
+	 public ResponseEntity<Customer> createCustomer(@RequestBody Customer customer) {
         return ResponseEntity.ok(customerService.createCustomer(customer));
     }
 }

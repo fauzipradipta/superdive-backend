@@ -16,7 +16,7 @@ public class CustomerService {
 	
 	public Customer createCustomer(Customer customer) {
 		
-		System.out.println(customer);
+		
         return customerRepository.save(customer);
     }
 	

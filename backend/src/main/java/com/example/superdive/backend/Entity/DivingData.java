@@ -1,7 +1,9 @@
 package com.example.superdive.backend.Entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -25,10 +27,19 @@ public class DivingData {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id; 
 	
+	@Column(nullable=false)
 	private String agencyName; 
+	
+	@Column(nullable=false)
 	private String level; 
+	
+	@Column(nullable=false)
 	private boolean isReference; 
+	
+	@Column(nullable=false)
 	private String referenceName;
+	
+	@Column(nullable=false)
 	private String referencePhoneNum;
 	
 	
@@ -100,8 +111,37 @@ public class DivingData {
 	public void setCustomer(Customer customer) {
 		this.customer = customer;
 	}
+	
+	
+
+//	@Override
+//	public String toString() {
+//		return "DivingData [id=" + id + ", agencyName=" + agencyName + ", level=" + level + ", isReference="
+//				+ isReference + ", referenceName=" + referenceName + ", referencePhoneNum=" + referencePhoneNum
+//				+ ", customer=" + customer + "]";
+//	}
 
 
+	public DivingData(Long id, String agencyName, String level, boolean isReference, String referenceName,
+			String referencePhoneNum, Customer customer) {
+		super();
+		this.id = id;
+		this.agencyName = agencyName;
+		this.level = level;
+		this.isReference = isReference;
+		this.referenceName = referenceName;
+		this.referencePhoneNum = referencePhoneNum;
+		this.customer = customer;
+	}
+
+
+	public DivingData() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+
+
+	@JsonBackReference
 	@ManyToOne
 	@JoinColumn(name ="customer_id", nullable = false)
 	private Customer customer;	

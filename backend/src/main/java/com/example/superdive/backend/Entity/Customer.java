@@ -5,8 +5,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -15,9 +17,7 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Entity
@@ -29,11 +29,15 @@ public class Customer {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
+	@Column(nullable=false)
 	private String name;
+	@Column(nullable=false)
 	private String email;
+	@Column(nullable=false)
 	private String phoneNum;
+	@Column(nullable=false)
 	private Date dob;
-
+	@Column(nullable=false)
 	private boolean isDiver;
 
 	
@@ -93,18 +97,8 @@ public class Customer {
 		this.divingData = divingData;
 	}
 
-	public List<EmergencyContact> getEmergencyContacts() {
-		return emergencyContacts;
-	}
-
-	public void setEmergencyContacts(List<EmergencyContact> emergencyContacts) {
-		this.emergencyContacts = emergencyContacts;
-	}
-
+	
+	@JsonManagedReference
 	@OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<DivingData> divingData = new ArrayList<>();
-	
-	@OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true)
-	private List<EmergencyContact> emergencyContacts = new ArrayList<>();
-
 }

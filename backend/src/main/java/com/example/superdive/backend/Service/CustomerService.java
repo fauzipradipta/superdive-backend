@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import com.example.superdive.backend.Entity.Customer;
 import com.example.superdive.backend.Repository.CustomerRepository;
+import com.example.superdive.backend.exception.CustomerAlreadyExistException;
 
 @Service
 public class CustomerService {
@@ -14,7 +15,7 @@ public class CustomerService {
 	@Autowired
 	private CustomerRepository customerRepository; 
 	
-	public Customer createCustomer(Customer customer) {
+	public Customer createCustomer(Customer customer) throws CustomerAlreadyExistException{
 		
 		
         return customerRepository.save(customer);

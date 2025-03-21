@@ -111,15 +111,7 @@ public class DivingData {
 	public void setCustomer(Customer customer) {
 		this.customer = customer;
 	}
-	
-	
 
-//	@Override
-//	public String toString() {
-//		return "DivingData [id=" + id + ", agencyName=" + agencyName + ", level=" + level + ", isReference="
-//				+ isReference + ", referenceName=" + referenceName + ", referencePhoneNum=" + referencePhoneNum
-//				+ ", customer=" + customer + "]";
-//	}
 
 
 	public DivingData(Long id, String agencyName, String level, boolean isReference, String referenceName,

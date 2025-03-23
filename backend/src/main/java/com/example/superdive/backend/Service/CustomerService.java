@@ -1,6 +1,7 @@
 package com.example.superdive.backend.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,7 +17,10 @@ public class CustomerService {
 	private CustomerRepository customerRepository; 
 	
 	public Customer createCustomer(Customer customer) throws CustomerAlreadyExistException{
-		
+		Optional<Customer>existingCustomer = customerRepository.findByName(customer.getName());
+		if(existingCustomer.isPresent()) {
+			throw new CustomerAlreadyExistException(customer.getName() +"Already Exist");
+		}
 		
         return customerRepository.save(customer);
     }

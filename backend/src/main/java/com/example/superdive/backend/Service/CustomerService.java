@@ -19,7 +19,7 @@ public class CustomerService {
 	public Customer createCustomer(Customer customer) throws CustomerAlreadyExistException{
 		Optional<Customer>existingCustomer = customerRepository.findByName(customer.getName());
 		if(existingCustomer.isPresent()) {
-			throw new CustomerAlreadyExistException(customer.getName() +"Already Exist");
+			throw new CustomerAlreadyExistException(customer.getName() +"  Already Exist");
 		}
 		
         return customerRepository.save(customer);

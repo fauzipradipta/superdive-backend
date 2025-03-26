@@ -1,4 +1,4 @@
-package com.example.superdive.backend.security;
+package com.example.superdive.backend.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

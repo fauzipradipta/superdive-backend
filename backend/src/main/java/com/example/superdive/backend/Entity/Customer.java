@@ -4,8 +4,10 @@ import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.example.superdive.backend.config.CustomDateDeserializer;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -29,14 +31,21 @@ public class Customer {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
+	
 	@Column(nullable=false)
 	private String name;
-	@Column(nullable=false)
-	private String email;
+	
+//	@Column(nullable=false)
+//	private String email;
+	
 	@Column(nullable=false)
 	private String phoneNum;
+	
 	@Column(nullable=false)
+	
+	@JsonDeserialize(using = CustomDateDeserializer.class)
 	private Date dob;
+	
 	@Column(nullable=false)
 	private boolean isDiver;
 
@@ -57,13 +66,13 @@ public class Customer {
 		this.name = name;
 	}
 
-	public String getEmail() {
-		return email;
-	}
-
-	public void setEmail(String email) {
-		this.email = email;
-	}
+//	public String getEmail() {
+//		return email;
+//	}
+//
+//	public void setEmail(String email) {
+//		this.email = email;
+//	}
 
 	public String getPhoneNum() {
 		return phoneNum;

@@ -35,13 +35,6 @@ public class DivingData {
 	@Column(nullable=false)
 	private boolean isReference; 
 	
-//	@Column(nullable=false)
-//	private String referenceName;
-//	
-//	@Column(nullable=false)
-//	private String referencePhoneNum;
-//	
-//	
 	public Long getId() {
 		return id;
 	}
@@ -80,27 +73,6 @@ public class DivingData {
 	public void setReference(boolean isReference) {
 		this.isReference = isReference;
 	}
-
-//
-//	public String getReferenceName() {
-//		return referenceName;
-//	}
-//
-//
-//	public void setReferenceName(String referenceName) {
-//		this.referenceName = referenceName;
-//	}
-//
-//
-//	public String getReferencePhoneNum() {
-//		return referencePhoneNum;
-//	}
-//
-//
-//	public void setReferencePhoneNum(String referencePhoneNum) {
-//		this.referencePhoneNum = referencePhoneNum;
-//	}
-
 
 	public Customer getCustomer() {
 		return customer;

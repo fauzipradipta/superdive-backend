@@ -1,6 +1,7 @@
 package com.example.superdive.backend.Entity;
 
 import java.sql.Date;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,16 +36,13 @@ public class Customer {
 	@Column(nullable=false)
 	private String name;
 	
-//	@Column(nullable=false)
-//	private String email;
-	
 	@Column(nullable=false)
 	private String phoneNum;
 	
 	@Column(nullable=false)
 	
 	@JsonDeserialize(using = CustomDateDeserializer.class)
-	private Date dob;
+	private LocalDate dob;
 	
 	@Column(nullable=false)
 	private boolean isDiver;
@@ -66,14 +64,6 @@ public class Customer {
 		this.name = name;
 	}
 
-//	public String getEmail() {
-//		return email;
-//	}
-//
-//	public void setEmail(String email) {
-//		this.email = email;
-//	}
-
 	public String getPhoneNum() {
 		return phoneNum;
 	}
@@ -82,11 +72,11 @@ public class Customer {
 		this.phoneNum = phoneNum;
 	}
 
-	public Date getDob() {
+	public LocalDate getDob() {
 		return dob;
 	}
 
-	public void setDob(Date dob) {
+	public void setDob(LocalDate dob) {
 		this.dob = dob;
 	}
 

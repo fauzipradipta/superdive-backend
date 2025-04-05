@@ -1,5 +1,7 @@
 package com.example.superdive.backend.dto;
 
+import java.time.LocalDate;
+
 public class CustomerDTO {
 	
 	private Long id;
@@ -25,7 +27,7 @@ public class CustomerDTO {
 	public void setPhoneNum(String phoneNum) {
 		this.phoneNum = phoneNum;
 	}
-	public String getDob() {
+	public LocalDate getDob() {
 		return dob;
 	}
 	public void setDob(String dob) {

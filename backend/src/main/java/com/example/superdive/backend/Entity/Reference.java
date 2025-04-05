@@ -1,9 +1,12 @@
 package com.example.superdive.backend.Entity;
 
+import java.security.PrivateKey;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
 
 @Entity
 public class Reference {
@@ -44,5 +47,6 @@ public class Reference {
 		// TODO Auto-generated constructor stub
 	}
 	
-	
+	@ManyToOne
+	private Customer customer;
 }

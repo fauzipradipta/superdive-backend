@@ -26,37 +26,49 @@ public class Reference {
 	private String referenceName;
 	private String referencePhoneNum;
 	
+	
 	public Long getId() {
 		return id;
 	}
+
+
 	public void setId(Long id) {
 		this.id = id;
 	}
+
+
 	public String getReferenceName() {
 		return referenceName;
 	}
+
+
 	public void setReferenceName(String referenceName) {
 		this.referenceName = referenceName;
 	}
+
+
 	public String getReferencePhoneNum() {
 		return referencePhoneNum;
 	}
+
+
 	public void setReferencePhoneNum(String referencePhoneNum) {
 		this.referencePhoneNum = referencePhoneNum;
 	}
-	public Reference(Long id, String referenceName, String referencePhoneNum) {
-		super();
-		this.id = id;
-		this.referenceName = referenceName;
-		this.referencePhoneNum = referencePhoneNum;
+
+
+	public Customer getCustomer() {
+		return customer;
 	}
-	public Reference() {
-		super();
-		// TODO Auto-generated constructor stub
+
+
+	public void setCustomer(Customer customer) {
+		this.customer = customer;
 	}
-	
+
+
 	@JsonBackReference
 	@ManyToOne
-	@JoinColumn(name ="customer_id", nullable = false)
+	@JoinColumn(name ="customer_id")
 	private Customer customer;
 }

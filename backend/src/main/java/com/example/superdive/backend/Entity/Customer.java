@@ -40,9 +40,8 @@ public class Customer {
 	private String phoneNum;
 	
 	@Column(nullable=false)
-	
 	@JsonDeserialize(using = CustomDateDeserializer.class)
-	private LocalDate dob;
+	private Date dob;
 	
 	@Column(nullable=false)
 	private boolean isDiver;
@@ -72,11 +71,11 @@ public class Customer {
 		this.phoneNum = phoneNum;
 	}
 
-	public LocalDate getDob() {
+	public Date getDob() {
 		return dob;
 	}
 
-	public void setDob(LocalDate dob) {
+	public void setDob(Date dob) {
 		this.dob = dob;
 	}
 
@@ -97,6 +96,17 @@ public class Customer {
 	}
 
 	
+	
+	public List<Reference> getReferences() {
+		return references;
+	}
+
+	public void setReferences(List<Reference> references) {
+		this.references = references;
+	}
+
+
+
 	@JsonManagedReference
 	@OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<DivingData> divingData = new ArrayList<>();

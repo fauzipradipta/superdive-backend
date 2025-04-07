@@ -16,7 +16,6 @@ import lombok.Data;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Entity
-@Data
 public class Reference {
 	
 	@Id

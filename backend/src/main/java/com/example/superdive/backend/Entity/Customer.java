@@ -25,15 +25,13 @@ import lombok.NoArgsConstructor;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Entity
 @Table(name = "customers")
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
+
 public class Customer {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	
-	@Column(nullable=false)
+	@Column(nullable=false,unique = true)
 	private String name;
 	
 	@Column(nullable=false)
@@ -104,6 +102,30 @@ public class Customer {
 	public void setReferences(List<Reference> references) {
 		this.references = references;
 	}
+
+	
+
+
+	public Customer(Long id, String name, String phoneNum, Date dob, boolean isDiver, List<DivingData> divingData,
+			List<Reference> references) {
+		super();
+		this.id = id;
+		this.name = name;
+		this.phoneNum = phoneNum;
+		this.dob = dob;
+		this.isDiver = isDiver;
+		this.divingData = divingData;
+		this.references = references;
+	}
+
+	
+
+
+	public Customer() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+
 
 
 

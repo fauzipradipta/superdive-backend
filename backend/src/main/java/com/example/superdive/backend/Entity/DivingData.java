@@ -18,8 +18,6 @@ import lombok.Data;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Entity
 @Table(name = "diving_data")	
-@Data
-
 public class DivingData {
 	
 	@Id
@@ -63,7 +61,8 @@ public class DivingData {
 	public void setLevel(String level) {
 		this.level = level;
 	}
-
+	
+	
 
 	public boolean isReference() {
 		return isReference;
@@ -73,6 +72,7 @@ public class DivingData {
 	public void setReference(boolean isReference) {
 		this.isReference = isReference;
 	}
+
 
 	public Customer getCustomer() {
 		return customer;

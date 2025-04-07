@@ -1,7 +1,6 @@
 package com.example.superdive.backend.Service;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,17 +50,14 @@ public class CustomerService {
         customer.setDivingData(divingList);
         customer.setReferences(refList);
         
-    	Optional<Customer>existingCustomer = customerRepository.findByName(customer.getName());
-		if(existingCustomer.isPresent()) {
-			throw new CustomerAlreadyExistException(customer.getName() +"  Already Exist");
+    	List<Customer>existingCustomer = customerRepository.findByName(customerDTO.getName());
+		if(!existingCustomer.isEmpty()) {
+			throw new CustomerAlreadyExistException(customerDTO.getName() +"  Already Exist");
 		}
 		
 		return customerRepository.save(customer);
 	}
 	
-	
-	
-
 	public Customer getCustomerById(Long id) {
 		return customerRepository.findById(id)
 				.orElseThrow(() -> new RuntimeException("Customer not found"));

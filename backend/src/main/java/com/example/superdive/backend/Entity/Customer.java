@@ -1,6 +1,7 @@
 package com.example.superdive.backend.Entity;
 
 import java.sql.Date;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,32 +18,24 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Entity
 @Table(name = "customers")
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
+
 public class Customer {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	
-	@Column(nullable=false)
+	@Column(nullable=false,unique = true)
 	private String name;
-	
-//	@Column(nullable=false)
-//	private String email;
 	
 	@Column(nullable=false)
 	private String phoneNum;
 	
 	@Column(nullable=false)
-	
 	@JsonDeserialize(using = CustomDateDeserializer.class)
 	private Date dob;
 	
@@ -65,14 +58,6 @@ public class Customer {
 	public void setName(String name) {
 		this.name = name;
 	}
-
-//	public String getEmail() {
-//		return email;
-//	}
-//
-//	public void setEmail(String email) {
-//		this.email = email;
-//	}
 
 	public String getPhoneNum() {
 		return phoneNum;
@@ -107,7 +92,46 @@ public class Customer {
 	}
 
 	
+	
+	public List<Reference> getReferences() {
+		return references;
+	}
+
+	public void setReferences(List<Reference> references) {
+		this.references = references;
+	}
+
+	
+
+
+	public Customer(Long id, String name, String phoneNum, Date dob, boolean isDiver, List<DivingData> divingData,
+			List<Reference> references) {
+		super();
+		this.id = id;
+		this.name = name;
+		this.phoneNum = phoneNum;
+		this.dob = dob;
+		this.isDiver = isDiver;
+		this.divingData = divingData;
+		this.references = references;
+	}
+
+	
+
+
+	public Customer() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+
+
+
+
 	@JsonManagedReference
 	@OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<DivingData> divingData = new ArrayList<>();
+	
+	@JsonManagedReference
+	@OneToMany(mappedBy = "customer", cascade=CascadeType.ALL,orphanRemoval = true)
+	private List<Reference> references = new ArrayList<>();
 }

@@ -10,15 +10,14 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
-import lombok.Data;
+
 
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Entity
 @Table(name = "diving_data")	
-@Data
-
 public class DivingData {
 	
 	@Id
@@ -33,13 +32,6 @@ public class DivingData {
 	
 	@Column(nullable=false)
 	private boolean isReference; 
-	
-	@Column(nullable=false)
-	private String referenceName;
-	
-	@Column(nullable=false)
-	private String referencePhoneNum;
-	
 	
 	public Long getId() {
 		return id;
@@ -69,7 +61,8 @@ public class DivingData {
 	public void setLevel(String level) {
 		this.level = level;
 	}
-
+	
+	
 
 	public boolean isReference() {
 		return isReference;
@@ -78,26 +71,6 @@ public class DivingData {
 
 	public void setReference(boolean isReference) {
 		this.isReference = isReference;
-	}
-
-
-	public String getReferenceName() {
-		return referenceName;
-	}
-
-
-	public void setReferenceName(String referenceName) {
-		this.referenceName = referenceName;
-	}
-
-
-	public String getReferencePhoneNum() {
-		return referencePhoneNum;
-	}
-
-
-	public void setReferencePhoneNum(String referencePhoneNum) {
-		this.referencePhoneNum = referencePhoneNum;
 	}
 
 
@@ -112,15 +85,12 @@ public class DivingData {
 
 
 
-	public DivingData(Long id, String agencyName, String level, boolean isReference, String referenceName,
-			String referencePhoneNum, Customer customer) {
+	public DivingData(Long id, boolean isReference, String agencyName, String level, Customer customer) {
 		super();
 		this.id = id;
+		this.isReference = isReference;
 		this.agencyName = agencyName;
 		this.level = level;
-		this.isReference = isReference;
-		this.referenceName = referenceName;
-		this.referencePhoneNum = referencePhoneNum;
 		this.customer = customer;
 	}
 
@@ -129,10 +99,12 @@ public class DivingData {
 		super();
 		// TODO Auto-generated constructor stub
 	}
-
+	
 
 	@JsonBackReference
 	@ManyToOne
 	@JoinColumn(name ="customer_id", nullable = false)
-	private Customer customer;	
+	private Customer customer;
+	
+	
 }

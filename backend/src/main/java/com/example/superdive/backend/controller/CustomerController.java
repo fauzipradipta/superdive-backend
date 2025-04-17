@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.superdive.backend.Entity.Customer;
 import com.example.superdive.backend.Service.CustomerService;
+import com.example.superdive.backend.dto.CustomerDTO;
 import com.example.superdive.backend.exception.CustomerAlreadyExistException;
 
 @RestController
@@ -23,12 +24,16 @@ import com.example.superdive.backend.exception.CustomerAlreadyExistException;
 public class CustomerController {
 	
 	@Autowired
-	private CustomerService customerService;
+	private final CustomerService customerService;
+	
+	public CustomerController(CustomerService customerService) {
+        this.customerService = customerService;
+    }
 	
 	@PostMapping(value = "/create-customer")
-	public ResponseEntity<?> createCustomer(@RequestBody Customer customer) {
+	public ResponseEntity<?> createCustomer(@RequestBody CustomerDTO customerDTO) {
         try {
-            Customer savedCustomer = customerService.createCustomer(customer);
+            Customer savedCustomer = customerService.createCustomer(customerDTO);
             return new ResponseEntity<>(savedCustomer, HttpStatus.CREATED);
         } catch (CustomerAlreadyExistException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);

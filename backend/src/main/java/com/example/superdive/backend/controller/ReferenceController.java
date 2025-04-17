@@ -24,7 +24,6 @@ public class ReferenceController {
 	ReferenceService referenceService; 
 	
 //	Customer customer;
-	@Autowired
 	public ReferenceController(ReferenceService referenceService) {
 		this.referenceService = referenceService;
 	}

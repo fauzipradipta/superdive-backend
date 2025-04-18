@@ -1,20 +1,10 @@
-package com.example.superdive.backend.Entity;
+package com.example.superdive.backend.dto;
 
 import java.math.BigDecimal;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-
-@Entity
-@Table(name = "product")
-
-public class Product {
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
+public class ProductDTO {
+	
+private Long id;
 	
 	private String categories;
 	private String details;
@@ -44,19 +34,16 @@ public class Product {
 	public void setPrice(BigDecimal price) {
 		this.price = price;
 	}
-	public Product(Long id, String categories, String details, BigDecimal price) {
+	public ProductDTO(Long id, String categories, String details, BigDecimal price) {
 		super();
 		this.id = id;
 		this.categories = categories;
 		this.details = details;
 		this.price = price;
 	}
-	public Product() {
+	public ProductDTO() {
 		super();
 		// TODO Auto-generated constructor stub
 	}
 	
-	
-    
-    
 }

@@ -17,9 +17,10 @@ public class SaleService {
 	private ProductService prodService;
 	@Autowired
 	private SaleRepository saleRepo;
-	
+
 	public Sale creatSale(SaleDTO saleDTO) {
-		Customer customer = CustomerService.class; 
+		Customer customer = customerService.createCustomer(saleDTO.getCustomer());
+		
 	}
 
 	

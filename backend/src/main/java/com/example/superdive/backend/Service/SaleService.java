@@ -5,8 +5,6 @@ import org.springframework.stereotype.Service;
 
 import com.example.superdive.backend.Entity.Customer;
 import com.example.superdive.backend.Entity.Sale;
-import com.example.superdive.backend.Repository.CustomerRepository;
-import com.example.superdive.backend.Repository.ProductRepository;
 import com.example.superdive.backend.Repository.SaleRepository;
 import com.example.superdive.backend.dto.SaleDTO;
 
@@ -14,12 +12,15 @@ import com.example.superdive.backend.dto.SaleDTO;
 public class SaleService {
 	
 	@Autowired
-	private CustomerRepository customerRepo; 
+	private CustomerService customerService; 
 	@Autowired 
-	private ProductRepository prodoctRepo;
+	private ProductService prodService;
 	@Autowired
 	private SaleRepository saleRepo;
 	
+	public Sale creatSale(SaleDTO saleDTO) {
+		Customer customer = CustomerService.class; 
+	}
 
 	
 }

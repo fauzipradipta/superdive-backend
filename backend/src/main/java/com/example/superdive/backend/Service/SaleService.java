@@ -2,6 +2,7 @@ package com.example.superdive.backend.Service;
 
 import java.math.BigDecimal;
 
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,15 +22,15 @@ public class SaleService {
 	@Autowired
 	private SaleRepository saleRepo;
 
-	public Sale creatSale(SaleDTO saleDTO) {
-		Customer customer = customerService.createCustomer(saleDTO.getCustomer());
+	public Sale creatSale(SaleDTO saleDTO)  {
+		Customer customer = customerService.findCustomerByNameAndPhoneNum(saleDTO.getCustomer().getName(), saleDTO.getCustomer().getPhoneNum());
 		Product product = prodService.getProductById(saleDTO.getProductId());
 		
 		Sale sale = new Sale(); 
 		sale.setCustomer(customer);
 		sale.setProduct(product);
 		sale.setQty(saleDTO.getQty());
-		sale.setTotalPrice(product.getPrice().multiply(BigDecimal.valueOf(dto.getQuantity())));
+		sale.setTotalPrice(product.getPrice().multiply(BigDecimal.valueOf(saleDTO.getQty())));
 		
 		return saleRepo.save(sale);
 		

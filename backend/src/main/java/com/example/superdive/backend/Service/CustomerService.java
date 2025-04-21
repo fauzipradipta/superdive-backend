@@ -58,6 +58,15 @@ public class CustomerService {
 		return customerRepository.save(customer);
 	}
 	
+	//to find customer by name and phone number
+	public Customer findCustomerByNameAndPhoneNum(String name, String phoneNum) {
+		
+		return customerRepository.findByNameAndPhoneNum(name, phoneNum)
+			   .stream()
+			   .findFirst()
+			   .orElseThrow(() -> new RuntimeException("Customer not found"));
+
+	}
 	public Customer getCustomerById(Long id) {
 		return customerRepository.findById(id)
 				.orElseThrow(() -> new RuntimeException("Customer not found"));

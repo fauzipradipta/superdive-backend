@@ -134,4 +134,10 @@ public class Customer {
 	@JsonManagedReference
 	@OneToMany(mappedBy = "customer", cascade=CascadeType.ALL,orphanRemoval = true)
 	private List<Reference> references = new ArrayList<>();
+
+
+    public boolean isEmpty() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'isEmpty'");
+    }
 }

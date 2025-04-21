@@ -12,5 +12,5 @@ import com.example.superdive.backend.Entity.Customer;
 public interface CustomerRepository extends JpaRepository< Customer,Long> {
 	List<Customer> findByName(String Name);
 	
-	 Optional<Customer> findByNameAndPhoneNumber(String name, String phoneNumber);
+	List<Customer> findByNameAndPhoneNum(String name, String phoneNum);
 }

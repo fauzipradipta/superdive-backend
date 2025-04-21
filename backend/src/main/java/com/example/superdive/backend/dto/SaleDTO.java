@@ -23,7 +23,6 @@ public class SaleDTO {
 		this.productId = productId;
 	}
 
-	}
 	public int getQty() {
 		return qty;
 	}

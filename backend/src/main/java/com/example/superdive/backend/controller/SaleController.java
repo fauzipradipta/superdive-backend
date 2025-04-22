@@ -1,5 +1,6 @@
 package com.example.superdive.backend.controller;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -15,7 +16,12 @@ import com.example.superdive.backend.dto.SaleDTO;
 @CrossOrigin("localhost:3000")
 public class SaleController {
 	
+	@Autowired
 	private  SaleService saleService; 
+	
+	public SaleController(SaleService saleService) {
+		this.saleService = saleService;
+	}
 	
 	@PostMapping(value = "/create-sale")
 	public ResponseEntity<String> createSale(@RequestBody SaleDTO saleDTO){

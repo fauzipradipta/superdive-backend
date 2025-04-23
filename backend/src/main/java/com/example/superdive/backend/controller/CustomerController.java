@@ -13,10 +13,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.superdive.backend.Entity.Customer;
-import com.example.superdive.backend.Service.CustomerService;
 import com.example.superdive.backend.dto.CustomerDTO;
+import com.example.superdive.backend.entity.Customer;
 import com.example.superdive.backend.exception.CustomerAlreadyExistException;
+import com.example.superdive.backend.service.CustomerService;
 
 @RestController
 @RequestMapping("/api")

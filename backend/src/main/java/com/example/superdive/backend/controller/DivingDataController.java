@@ -7,8 +7,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.superdive.backend.Entity.DivingData;
-import com.example.superdive.backend.Service.DivingDataService;
+import com.example.superdive.backend.entity.DivingData;
+import com.example.superdive.backend.service.DivingDataService;
 
 @RestController
 @RequestMapping("/api")

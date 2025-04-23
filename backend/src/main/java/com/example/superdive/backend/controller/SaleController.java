@@ -8,8 +8,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import com.example.superdive.backend.Service.SaleService;
 import com.example.superdive.backend.dto.SaleDTO;
+import com.example.superdive.backend.service.SaleService;
 
 @Controller
 @RequestMapping("/api")

@@ -1,6 +1,8 @@
-package com.example.superdive.backend.Entity;
+package com.example.superdive.backend.entity;
 
 import java.math.BigDecimal;
+
+import com.example.superdive.backend.enums.ProductType;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -16,7 +18,7 @@ public class Product {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	
-	private String type;
+	private ProductType type;
 	private String details;
 	private BigDecimal price;
 	
@@ -27,10 +29,10 @@ public class Product {
 		this.id = id;
 	}
 	
-	public String getType() {
+	public ProductType getType() {
 		return type;
 	}
-	public void setType(String type) {
+	public void setType(ProductType type) {
 		this.type = type;
 	}
 	public String getDetails() {
@@ -45,7 +47,7 @@ public class Product {
 	public void setPrice(BigDecimal price) {
 		this.price = price;
 	}
-	public Product(Long id, String type, String details, BigDecimal price) {
+	public Product(Long id, ProductType type, String details, BigDecimal price) {
 		super();
 		this.id = id;
 		this.type = type;

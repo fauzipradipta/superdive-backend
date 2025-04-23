@@ -1,4 +1,4 @@
-package com.example.superdive.backend.Entity;
+package com.example.superdive.backend.entity;
 
 import java.sql.Date;
 import java.time.LocalDate;

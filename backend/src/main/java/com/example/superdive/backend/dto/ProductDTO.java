@@ -2,24 +2,25 @@ package com.example.superdive.backend.dto;
 
 import java.math.BigDecimal;
 
+import com.example.superdive.backend.enums.ProductType;
+
 public class ProductDTO {
 	
 	private Long id;
-	private String categories;
+	private ProductType type;
 	private String details;
 	private BigDecimal price;
-	
 	public Long getId() {
 		return id;
 	}
 	public void setId(Long id) {
 		this.id = id;
 	}
-	public String getCategories() {
-		return categories;
+	public ProductType getType() {
+		return type;
 	}
-	public void setCategories(String categories) {
-		this.categories = categories;
+	public void setType(ProductType type) {
+		this.type = type;
 	}
 	public String getDetails() {
 		return details;
@@ -33,10 +34,10 @@ public class ProductDTO {
 	public void setPrice(BigDecimal price) {
 		this.price = price;
 	}
-	public ProductDTO(Long id, String categories, String details, BigDecimal price) {
+	public ProductDTO(Long id, ProductType type, String details, BigDecimal price) {
 		super();
 		this.id = id;
-		this.categories = categories;
+		this.type = type;
 		this.details = details;
 		this.price = price;
 	}
@@ -44,5 +45,6 @@ public class ProductDTO {
 		super();
 		// TODO Auto-generated constructor stub
 	}
+	
 	
 }

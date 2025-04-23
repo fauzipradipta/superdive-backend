@@ -9,10 +9,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.superdive.backend.Entity.Reference;
-import com.example.superdive.backend.Service.ReferenceService;
 import com.example.superdive.backend.dto.ReferenceDTO;
+import com.example.superdive.backend.entity.Reference;
 import com.example.superdive.backend.exception.MessageErrorException;
+import com.example.superdive.backend.service.ReferenceService;
 
 @RestController
 @RequestMapping("/api")

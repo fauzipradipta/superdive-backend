@@ -1,4 +1,4 @@
-package com.example.superdive.backend.Service;
+package com.example.superdive.backend.service;
 
 import java.math.BigDecimal;
 
@@ -6,11 +6,11 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.example.superdive.backend.Entity.Customer;
-import com.example.superdive.backend.Entity.Product;
-import com.example.superdive.backend.Entity.Sale;
-import com.example.superdive.backend.Repository.SaleRepository;
 import com.example.superdive.backend.dto.SaleDTO;
+import com.example.superdive.backend.entity.Customer;
+import com.example.superdive.backend.entity.Product;
+import com.example.superdive.backend.entity.Sale;
+import com.example.superdive.backend.repository.SaleRepository;
 
 @Service
 public class SaleService {

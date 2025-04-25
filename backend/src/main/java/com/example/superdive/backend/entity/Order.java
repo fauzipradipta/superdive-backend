@@ -11,7 +11,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
 
 @Entity
-public class Sale {
+public class Order {
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,14 +25,7 @@ public class Sale {
 	private Product product;
 	
 	
-	public Sale(Long id, int qty, BigDecimal totalPrice, Customer customer, Product product) {
-		super();
-		this.id = id;
-		this.qty = qty;
-		this.totalPrice = totalPrice;
-		this.customer = customer;
-		this.product = product;
-	}
+
 	public Customer getCustomer() {
 		return customer;
 	}
@@ -63,8 +56,15 @@ public class Sale {
 	public void setTotalPrice(BigDecimal totalPrice) {
 		this.totalPrice = totalPrice;
 	}
-	
-	public Sale() {
+		public Order(Long id, int qty, BigDecimal totalPrice, Customer customer, Product product) {
+		super();
+		this.id = id;
+		this.qty = qty;
+		this.totalPrice = totalPrice;
+		this.customer = customer;
+		this.product = product;
+	}
+	public Order() {
 		super();
 		// TODO Auto-generated constructor stub
 	}

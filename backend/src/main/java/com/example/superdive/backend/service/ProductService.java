@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.example.superdive.backend.dto.ProductDTO;
 import com.example.superdive.backend.entity.Product;
 import com.example.superdive.backend.enums.ProductType;
 import com.example.superdive.backend.repository.ProductRepository;
@@ -20,8 +21,15 @@ public class ProductService {
 		this.productRepository = productRepository;
 	}
 	
-	
-	 public List<Product> getProductsByType(String type) {
+	public Product createProduct(ProductDTO prodDTO) {
+		Product prod = new Product(); 
+		prod.setType(prodDTO.getType());
+		prod.setDetails(prodDTO.getDetails());
+		prod.setPrice(prodDTO.getPrice());
+		
+		return productRepository.save(prod);
+	}
+	public List<Product> getProductsByType(String type) {
 	        return productRepository.findByType(ProductType.valueOf(type));
 	    }
 

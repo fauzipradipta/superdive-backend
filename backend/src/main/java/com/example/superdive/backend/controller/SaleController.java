@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.example.superdive.backend.dto.SaleDTO;
+import com.example.superdive.backend.entity.Sale;
+import com.example.superdive.backend.exception.MessageErrorException;
 import com.example.superdive.backend.service.SaleService;
 
 
@@ -26,8 +28,15 @@ public class SaleController {
 	
 	@PostMapping(value = "/create-sale")
 	public ResponseEntity<String> createSale(@RequestBody SaleDTO orderDTO){
-		orderService.createOrder(orderDTO);
 		
-		return ResponseEntity.ok("Order successfully recorded");
+		try{
+			orderService.createOrder(orderDTO);
+			return ResponseEntity.ok("Order successfully recorded");
+		}
+		catch (MessageErrorException e) {
+			return ResponseEntity.badRequest().body("Error: " + e.getMessage());
+		}
+		
+		
 	}
 }

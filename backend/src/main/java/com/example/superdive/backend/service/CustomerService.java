@@ -11,6 +11,7 @@ import com.example.superdive.backend.entity.Customer;
 import com.example.superdive.backend.entity.DivingData;
 import com.example.superdive.backend.entity.Reference;
 import com.example.superdive.backend.exception.CustomerAlreadyExistException;
+import com.example.superdive.backend.exception.MessageErrorException;
 import com.example.superdive.backend.repository.CustomerRepository;
 
 @Service
@@ -59,13 +60,12 @@ public class CustomerService {
 	}
 	
 	//to find customer by name and phone number
-	public Customer findCustomerByNameAndPhoneNum(String name, String phoneNum) {
+	public Customer findCustomerByNameAndPhoneNum(String name, String phoneNum) throws MessageErrorException {
 		
 		return customerRepository.findByNameAndPhoneNum(name, phoneNum)
 			   .stream()
 			   .findFirst()
-			   .orElseThrow(() -> new RuntimeException("Customer not found"));
-
+			   .orElseThrow(() -> new MessageErrorException(name + " with phone number " + phoneNum + " not found"));
 	}
 	public Customer getCustomerById(Long id) {
 		return customerRepository.findById(id)

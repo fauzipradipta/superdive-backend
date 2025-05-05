@@ -1,4 +1,4 @@
-package com.example.superdive.backend.Entity;
+package com.example.superdive.backend.entity;
 
 
 import jakarta.persistence.Entity;

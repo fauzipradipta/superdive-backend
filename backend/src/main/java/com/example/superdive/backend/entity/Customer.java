@@ -1,4 +1,4 @@
-package com.example.superdive.backend.Entity;
+package com.example.superdive.backend.entity;
 
 import java.sql.Date;
 import java.time.LocalDate;
@@ -23,7 +23,6 @@ import jakarta.persistence.Table;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Entity
 @Table(name = "customers")
-
 public class Customer {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -115,17 +114,10 @@ public class Customer {
 		this.divingData = divingData;
 		this.references = references;
 	}
-
-	
-
-
 	public Customer() {
 		super();
 		// TODO Auto-generated constructor stub
 	}
-
-
-
 
 	@JsonManagedReference
 	@OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -134,4 +126,5 @@ public class Customer {
 	@JsonManagedReference
 	@OneToMany(mappedBy = "customer", cascade=CascadeType.ALL,orphanRemoval = true)
 	private List<Reference> references = new ArrayList<>();
+
 }

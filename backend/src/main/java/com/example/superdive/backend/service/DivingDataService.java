@@ -1,10 +1,10 @@
-package com.example.superdive.backend.Service;
+package com.example.superdive.backend.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.example.superdive.backend.Entity.DivingData;
-import com.example.superdive.backend.Repository.DivingDataRepository;
+import com.example.superdive.backend.entity.DivingData;
+import com.example.superdive.backend.repository.DivingDataRepository;
 
 @Service
 public class DivingDataService {

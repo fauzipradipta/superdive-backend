@@ -1,4 +1,4 @@
-package com.example.superdive.backend.Entity;
+package com.example.superdive.backend.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -12,7 +12,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
-import lombok.Data;
+
 
 
 @JsonInclude(JsonInclude.Include.NON_NULL)

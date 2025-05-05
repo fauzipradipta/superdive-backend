@@ -14,7 +14,7 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .anyRequest().permitAll() // Allow access to all endpoints without authentication
             )
-            .csrf(csrf -> csrf.disable()); // Disable CSRF protection (optional)
+            .csrf(csrf -> csrf.disable()); // Disable CSRF protection using the new method
         return http.build();
     }
 }

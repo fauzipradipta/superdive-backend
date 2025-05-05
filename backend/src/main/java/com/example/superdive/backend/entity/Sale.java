@@ -2,8 +2,7 @@ package com.example.superdive.backend.entity;
 
 import java.math.BigDecimal;
 
-
-
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -11,12 +10,14 @@ import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
 
 @Entity
-public class Order {
+public class Sale {
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id; 
+	@Column(nullable=false)
 	private int qty; 
+	@Column(nullable=false)
 	private BigDecimal totalPrice;
 	@ManyToOne
 	private Customer customer; 
@@ -56,7 +57,7 @@ public class Order {
 	public void setTotalPrice(BigDecimal totalPrice) {
 		this.totalPrice = totalPrice;
 	}
-		public Order(Long id, int qty, BigDecimal totalPrice, Customer customer, Product product) {
+		public Sale(Long id, int qty, BigDecimal totalPrice, Customer customer, Product product) {
 		super();
 		this.id = id;
 		this.qty = qty;
@@ -64,7 +65,7 @@ public class Order {
 		this.customer = customer;
 		this.product = product;
 	}
-	public Order() {
+	public Sale() {
 		super();
 		// TODO Auto-generated constructor stub
 	}

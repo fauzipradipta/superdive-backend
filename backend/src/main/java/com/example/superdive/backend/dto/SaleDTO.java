@@ -2,7 +2,7 @@ package com.example.superdive.backend.dto;
 
 import java.math.BigDecimal;
 
-public class OrderDTO {
+public class SaleDTO {
 	
 	private CustomerDTO customer; 
 	private ProductDTO product;
@@ -16,8 +16,6 @@ public class OrderDTO {
 		this.customer = customer;
 	}
 	
-	
-
 	public ProductDTO getProduct() {
 		return product;
 	}
@@ -36,15 +34,13 @@ public class OrderDTO {
 	public void setTotalPrice(BigDecimal totalPrice) {
 		this.totalPrice = totalPrice;
 	}
-	
-	public OrderDTO(CustomerDTO customer, ProductDTO product, int qty, BigDecimal totalPrice) {
-		super();
+	public SaleDTO(CustomerDTO customer, ProductDTO product, int qty, BigDecimal totalPrice) {
 		this.customer = customer;
 		this.product = product;
 		this.qty = qty;
 		this.totalPrice = totalPrice;
 	}
-	public OrderDTO() {
+	public SaleDTO() {
 		super();
 	}
 	

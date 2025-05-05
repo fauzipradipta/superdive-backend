@@ -10,6 +10,7 @@ public class ProductDTO {
 	private ProductType type;
 	private String details;
 	private BigDecimal price;
+	
 	public Long getId() {
 		return id;
 	}

@@ -23,7 +23,6 @@ import jakarta.persistence.Table;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Entity
 @Table(name = "customers")
-
 public class Customer {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -115,17 +114,10 @@ public class Customer {
 		this.divingData = divingData;
 		this.references = references;
 	}
-
-	
-
-
 	public Customer() {
 		super();
 		// TODO Auto-generated constructor stub
 	}
-
-
-
 
 	@JsonManagedReference
 	@OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -135,9 +127,4 @@ public class Customer {
 	@OneToMany(mappedBy = "customer", cascade=CascadeType.ALL,orphanRemoval = true)
 	private List<Reference> references = new ArrayList<>();
 
-
-    public boolean isEmpty() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'isEmpty'");
-    }
 }

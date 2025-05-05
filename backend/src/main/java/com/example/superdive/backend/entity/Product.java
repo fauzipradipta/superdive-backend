@@ -21,7 +21,6 @@ public class Product {
 	
 	private ProductType type;
 	private String details;
-	private int qty;
 	private BigDecimal price;
 	
 	public Long getId() {
@@ -43,24 +42,18 @@ public class Product {
 	public void setDetails(String details) {
 		this.details = details;
 	}
-	public int getQty() {
-		return qty;
-	}
-	public void setQty(int qty) {
-		this.qty = qty;
-	}
+	
 	public BigDecimal getPrice() {
 		return price;
 	}
 	public void setPrice(BigDecimal price) {
 		this.price = price;
 	}
-	public Product(Long id, ProductType type, String details, int qty, BigDecimal price, Customer customer) {
+	public Product(Long id, ProductType type, String details, BigDecimal price, Customer customer) {
 		super();
 		this.id = id;
 		this.type = type;
 		this.details = details;
-		this.qty = qty;
 		this.price = price;
 		this.customer = customer;
 	}

@@ -29,7 +29,7 @@ public class ProductController {
 		this.productService = productService;
 	}
 	
-	@PostMapping(value="/products")
+	@GetMapping(value="/products")
 	public List<ProductDTO>postProduct(@RequestParam String type){
 		
 		return productService.getProductsByType(type).stream().map(p ->{
@@ -42,9 +42,7 @@ public class ProductController {
 		}).collect(Collectors.toList());
 	}
 
-	// public List<SaleDTO> getSaleDTOs(List<Product> products) {
-		
-	// }
+	
 	@GetMapping("/all-products")
 	public List <Product> getAll(){
 		return productService.getAll(); 

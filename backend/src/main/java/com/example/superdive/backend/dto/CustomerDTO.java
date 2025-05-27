@@ -1,7 +1,6 @@
 package com.example.superdive.backend.dto;
 
 import java.sql.Date;
-import java.time.LocalDate;
 import java.util.List;
 
 public class CustomerDTO {
@@ -10,7 +9,7 @@ public class CustomerDTO {
 	private String name; 
 	private String phoneNum; 
 	private Date dob; 
-	private boolean isDiver;
+	private boolean diver;
 	
 	private List<DivingDataDTO> divingData;
 	private List<ReferenceDTO> reference;
@@ -51,19 +50,19 @@ public class CustomerDTO {
 	public void setDob(Date dob) {
 		this.dob = dob;
 	}
-	public boolean isDiver() {
-		return isDiver;
+	public boolean getDiver() {
+		return diver;
 	}
-	public void setDiver(boolean isDiver) {
-		this.isDiver = isDiver;
+	public void setDiver(boolean diver) {
+		this.diver = diver;
 	}
-	public CustomerDTO(Long id, String name, String phoneNum, Date dob, boolean isDiver) {
+	public CustomerDTO(Long id, String name, String phoneNum, Date dob, boolean diver) {
 		super();
 		this.id = id;
 		this.name = name;
 		this.phoneNum = phoneNum;
 		this.dob = dob;
-		this.isDiver = isDiver;
+		this.diver = diver;
 	}
 	public CustomerDTO() {
 		super();

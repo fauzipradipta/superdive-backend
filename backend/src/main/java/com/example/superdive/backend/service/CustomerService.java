@@ -1,6 +1,8 @@
 package com.example.superdive.backend.service;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +31,7 @@ public class CustomerService {
 		customer.setName(customerDTO.getName());
 		customer.setPhoneNum(customerDTO.getPhoneNum());
 		customer.setDob(customerDTO.getDob());
-		
+		customer.setDiver(customerDTO.getDiver());
 
         List<DivingData> divingList = customerDTO.getDivingData().stream().map(d -> {
             DivingData dd = new DivingData();
@@ -40,13 +42,17 @@ public class CustomerService {
             return dd;
         }).collect(Collectors.toList());
         
-        List<Reference> refList = customerDTO.getReference().stream().map(r -> {
-            Reference ref = new Reference();
-            ref.setReferenceName(r.getReferenceName());
-            ref.setReferencePhoneNum(r.getPhoneNum());
-            ref.setCustomer(customer); // link back
-            return ref;
-        }).collect(Collectors.toList());
+        List<Reference> refList = Optional.ofNullable(customerDTO.getReference())
+		.orElse(Collections.emptyList())
+		.stream()
+		.map(r -> {
+			Reference ref = new Reference();
+			ref.setReferenceName(r.getReferenceName());
+			ref.setReferencePhoneNum(r.getPhoneNum());
+			ref.setCustomer(customer);
+			return ref;
+		})
+    .collect(Collectors.toList());
         
         customer.setDivingData(divingList);
         customer.setReferences(refList);

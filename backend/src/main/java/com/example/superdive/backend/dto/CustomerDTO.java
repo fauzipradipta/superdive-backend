@@ -3,12 +3,16 @@ package com.example.superdive.backend.dto;
 import java.sql.Date;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class CustomerDTO {
 	
 	private Long id;
 	private String name; 
 	private String phoneNum; 
 	private Date dob; 
+
+	@JsonProperty("isDiver")
 	private boolean diver;
 	
 	private List<DivingDataDTO> divingData;

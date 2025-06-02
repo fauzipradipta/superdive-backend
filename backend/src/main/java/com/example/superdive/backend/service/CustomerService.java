@@ -37,7 +37,7 @@ public class CustomerService {
             DivingData dd = new DivingData();
             dd.setAgencyName(d.getAgencyName());
             dd.setLevel(d.getLevel());
-            dd.setReference(d.isReference());
+            dd.setReference(d.getReference());
             dd.setCustomer(customer);
             return dd;
         }).collect(Collectors.toList());

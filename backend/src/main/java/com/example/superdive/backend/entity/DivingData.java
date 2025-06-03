@@ -87,10 +87,10 @@ public class DivingData {
 
 
 
-	public DivingData(Long id, boolean isReference, String agencyName, String level, Customer customer) {
+	public DivingData(Long id, boolean reference, String agencyName, String level, Customer customer) {
 		super();
 		this.id = id;
-		this.isReference = isReference;
+		this.reference = reference;
 		this.agencyName = agencyName;
 		this.level = level;
 		this.customer = customer;

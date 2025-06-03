@@ -48,7 +48,7 @@ public class CustomerService {
 		.map(r -> {
 			Reference ref = new Reference();
 			ref.setReferenceName(r.getReferenceName());
-			ref.setReferencePhoneNum(r.getPhoneNum());
+			ref.setReferencePhoneNum(r.getReferencePhoneNum());
 			ref.setCustomer(customer);
 			return ref;
 		})

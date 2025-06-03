@@ -2,6 +2,7 @@ package com.example.superdive.backend.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -31,7 +32,8 @@ public class DivingData {
 	private String level; 
 	
 	@Column(nullable=false)
-	private boolean isReference; 
+	@JsonProperty("isReference")
+	private boolean reference; 
 	
 	public Long getId() {
 		return id;
@@ -64,13 +66,13 @@ public class DivingData {
 	
 	
 
-	public boolean isReference() {
-		return isReference;
+	public boolean getReference() {
+		return reference;
 	}
 
 
-	public void setReference(boolean isReference) {
-		this.isReference = isReference;
+	public void setReference(boolean reference) {
+		this.reference = reference;
 	}
 
 

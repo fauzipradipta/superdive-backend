@@ -6,6 +6,8 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.example.superdive.backend.dto.CustomerDTO;
@@ -77,6 +79,13 @@ public class CustomerService {
 		return customerRepository.findById(id)
 				.orElseThrow(() -> new RuntimeException("Customer not found"));
 	}
+	
+	
+	//get All Customer with pagination 
+	public Page<Customer>getAllCustomerByPagination(Pageable pageable){
+		return customerRepository.findAll(pageable);				
+	}
+	
 	
 	public List<Customer> getAllCustomer(){
 		return customerRepository.findAll();

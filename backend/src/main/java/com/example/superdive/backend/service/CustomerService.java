@@ -1,9 +1,13 @@
 package com.example.superdive.backend.service;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.example.superdive.backend.dto.CustomerDTO;
@@ -29,24 +33,28 @@ public class CustomerService {
 		customer.setName(customerDTO.getName());
 		customer.setPhoneNum(customerDTO.getPhoneNum());
 		customer.setDob(customerDTO.getDob());
-		
+		customer.setDiver(customerDTO.getDiver());
 
         List<DivingData> divingList = customerDTO.getDivingData().stream().map(d -> {
             DivingData dd = new DivingData();
             dd.setAgencyName(d.getAgencyName());
             dd.setLevel(d.getLevel());
-            dd.setReference(d.isReference());
+            dd.setReference(d.getReference());
             dd.setCustomer(customer);
             return dd;
         }).collect(Collectors.toList());
         
-        List<Reference> refList = customerDTO.getReference().stream().map(r -> {
-            Reference ref = new Reference();
-            ref.setReferenceName(r.getReferenceName());
-            ref.setReferencePhoneNum(r.getPhoneNum());
-            ref.setCustomer(customer); // link back
-            return ref;
-        }).collect(Collectors.toList());
+        List<Reference> refList = Optional.ofNullable(customerDTO.getReference())
+		.orElse(Collections.emptyList())
+		.stream()
+		.map(r -> {
+			Reference ref = new Reference();
+			ref.setReferenceName(r.getReferenceName());
+			ref.setReferencePhoneNum(r.getReferencePhoneNum());
+			ref.setCustomer(customer);
+			return ref;
+		})
+    .collect(Collectors.toList());
         
         customer.setDivingData(divingList);
         customer.setReferences(refList);
@@ -71,6 +79,13 @@ public class CustomerService {
 		return customerRepository.findById(id)
 				.orElseThrow(() -> new RuntimeException("Customer not found"));
 	}
+	
+	
+	//get All Customer with pagination 
+	public Page<Customer>getAllCustomerByPagination(Pageable pageable){
+		return customerRepository.findAll(pageable);				
+	}
+	
 	
 	public List<Customer> getAllCustomer(){
 		return customerRepository.findAll();

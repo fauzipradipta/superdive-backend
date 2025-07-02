@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.superdive.backend.dto.ProductDTO;
+import com.example.superdive.backend.dto.SaleDTO;
 import com.example.superdive.backend.entity.Product;
 import com.example.superdive.backend.enums.ProductType;
 import com.example.superdive.backend.service.ProductService;
@@ -28,8 +29,8 @@ public class ProductController {
 		this.productService = productService;
 	}
 	
-	@PostMapping(value="/products")
-	public List<ProductDTO>getProductByType(@RequestParam String type){
+	@GetMapping(value="/products")
+	public List<ProductDTO>postProduct(@RequestParam String type){
 		
 		return productService.getProductsByType(type).stream().map(p ->{
 			ProductDTO dto = new ProductDTO();
@@ -40,12 +41,8 @@ public class ProductController {
 			return dto;
 		}).collect(Collectors.toList());
 	}
-	
-	@GetMapping("/product-types")
-    public List<ProductType> getAllProductTypes() {
-        return Arrays.asList(ProductType.values());
-    }
 
+	
 	@GetMapping("/all-products")
 	public List <Product> getAll(){
 		return productService.getAll(); 

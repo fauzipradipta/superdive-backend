@@ -8,6 +8,7 @@ import java.util.List;
 import com.example.superdive.backend.config.CustomDateDeserializer;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import jakarta.persistence.CascadeType;
@@ -39,7 +40,8 @@ public class Customer {
 	private Date dob;
 	
 	@Column(nullable=false)
-	private boolean isDiver;
+	@JsonProperty("isDiver")
+	private boolean diver;
 
 	
 	public Long getId() {
@@ -74,12 +76,12 @@ public class Customer {
 		this.dob = dob;
 	}
 
-	public boolean isDiver() {
-		return isDiver;
+	public boolean diver() {
+		return diver;
 	}
 
-	public void setDiver(boolean isDiver) {
-		this.isDiver = isDiver;
+	public void setDiver(boolean diver) {
+		this.diver = diver;
 	}
 
 	public List<DivingData> getDivingData() {
@@ -103,14 +105,14 @@ public class Customer {
 	
 
 
-	public Customer(Long id, String name, String phoneNum, Date dob, boolean isDiver, List<DivingData> divingData,
+	public Customer(Long id, String name, String phoneNum, Date dob, boolean diver, List<DivingData> divingData,
 			List<Reference> references) {
 		super();
 		this.id = id;
 		this.name = name;
 		this.phoneNum = phoneNum;
 		this.dob = dob;
-		this.isDiver = isDiver;
+		this.diver = diver;
 		this.divingData = divingData;
 		this.references = references;
 	}

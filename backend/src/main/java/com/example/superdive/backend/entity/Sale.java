@@ -19,6 +19,7 @@ public class Sale {
 	private int qty; 
 	@Column(nullable=false)
 	private BigDecimal totalPrice;
+	
 	@ManyToOne
 	private Customer customer; 
 	

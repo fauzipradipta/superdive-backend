@@ -54,7 +54,9 @@ public class OrderItem{
         this.qty = qty;
     }
 
-    
+    public OrderItem() {
+        // Default constructor
+    }
 
     
 

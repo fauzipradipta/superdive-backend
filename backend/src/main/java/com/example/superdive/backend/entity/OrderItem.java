@@ -1,4 +1,6 @@
 package com.example.superdive.backend.entity;
+import java.math.BigDecimal;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -22,6 +24,7 @@ public class OrderItem{
     @JoinColumn(name = "product_id")
     private Product product;
     private int qty;
+    private BigDecimal price; 
     
     public Long getId() {
         return Id;
@@ -47,6 +50,13 @@ public class OrderItem{
     public void setQty(int qty) {
         this.qty = qty;
     }
+    public BigDecimal getPrice() {
+        return price;
+    }
+    public void setPrice(BigDecimal price) {
+        this.price = price;
+    }
+    
     public OrderItem(Long id, Sale sale, Product product, int qty) {
         Id = id;
         this.sale = sale;
@@ -57,6 +67,7 @@ public class OrderItem{
     public OrderItem() {
         // Default constructor
     }
+    
 
     
 

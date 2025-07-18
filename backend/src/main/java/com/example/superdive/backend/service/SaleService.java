@@ -48,12 +48,12 @@ public class SaleService {
 
 		for (OrderItemDTO itemDTO : saleDTO.getOrderItems()) {
 
-			Product product   = prodService.getProductById(itemDTO.getProductId());
+			Product product   = prodService.createProduct(itemDTO.getProductDTO());
             
             OrderItem item = new OrderItem();
             item.setProduct(product);
             item.setQty(itemDTO.getQty());
-            
+            item.setPrice(itemDTO.getPrice()); 
             sale.addItem(item);
         }
         

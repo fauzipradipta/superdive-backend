@@ -55,10 +55,10 @@ public class SaleController {
 		}
 	}
 
-	 @GetMapping("/{id}")
+	 @GetMapping("/sales/{id}")
     public ResponseEntity<Sale> getOrder(@PathVariable Long id) {
         try {
-            Sale order = saleService.getOrderById(id);
+            Sale order = saleService.getSaleById(id);
             return ResponseEntity.ok(order);
         } catch (MessageErrorException e) {
             return ResponseEntity.notFound().build();
@@ -67,7 +67,7 @@ public class SaleController {
 	
 	@GetMapping(value = "/all-sales")
 	public ResponseEntity<List<Sale>> getAllSale() {
-		List<Sale> sales = saleService.getAllOrder();
+		List<Sale> sales = saleService.getAllSales();
 
 		if (sales.isEmpty()) {
 			return ResponseEntity.noContent().build();

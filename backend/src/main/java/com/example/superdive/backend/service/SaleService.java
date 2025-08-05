@@ -37,6 +37,7 @@ public class SaleService {
 	@Transactional
 	public Sale createOrder(SaleDTO saleDTO) throws MessageErrorException  {
 
+		
 		Customer customer = customerService.findCustomerByNameAndPhoneNum(
 			saleDTO.getCustomer().getName(),
 			saleDTO.getCustomer().getPhoneNum()

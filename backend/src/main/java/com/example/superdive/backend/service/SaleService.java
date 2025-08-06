@@ -37,7 +37,11 @@ public class SaleService {
 	@Transactional
 	public Sale createOrder(SaleDTO saleDTO) throws MessageErrorException  {
 
-		
+		//validate customer
+		if(saleDTO.getOrderItems() == null || saleDTO.getOrderItems().isEmpty()){
+			throw new MessageErrorException("Order must contain at least one item.");
+		}
+
 		Customer customer = customerService.findCustomerByNameAndPhoneNum(
 			saleDTO.getCustomer().getName(),
 			saleDTO.getCustomer().getPhoneNum()
@@ -49,6 +53,13 @@ public class SaleService {
 
 		for (OrderItemDTO itemDTO : saleDTO.getOrderItems()) {
 
+			 if(itemDTO.getPrice() == null || itemDTO.getPrice().compareTo(BigDecimal.ZERO) <= 0){
+                throw new MessageErrorException("Invalid Price for product");
+            }
+                
+            if(itemDTO.getQty() == null || itemDTO.getQty() <= 0){
+                throw new MessageErrorException("Invalid quantity for product");
+            }
 			Product product   = prodService.createProduct(itemDTO.getProductDTO());
             
             OrderItem item = new OrderItem();

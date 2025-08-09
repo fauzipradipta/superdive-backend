@@ -53,11 +53,11 @@ public class SaleService {
 
 		for (OrderItemDTO itemDTO : saleDTO.getOrderItems()) {
 
-			 if(itemDTO.getPrice() == null || itemDTO.getPrice().compareTo(BigDecimal.ZERO) <= 0){
+			if(itemDTO.getPrice() == null || itemDTO.getPrice().compareTo(BigDecimal.ZERO) <= 0){
                 throw new MessageErrorException("Invalid Price for product");
             }
                 
-            if(itemDTO.getQty() == null || itemDTO.getQty() <= 0){
+            if(itemDTO.getQty() == null){
                 throw new MessageErrorException("Invalid quantity for product");
             }
 			Product product   = prodService.createProduct(itemDTO.getProductDTO());

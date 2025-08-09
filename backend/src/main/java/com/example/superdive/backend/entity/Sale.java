@@ -78,9 +78,10 @@ public class Sale {
         item.setSale(this);
     }
     
-    public void calculateTotal() {
-        this.totalPrice = items.stream()
-            .map(item -> item.getProduct().getPrice().multiply(BigDecimal.valueOf(item.getQty())))
-            .reduce(BigDecimal.ZERO, BigDecimal::add);
-    }
+	public void calculateTotal() {
+		BigDecimal total = this.items.stream()
+			.map(item -> item.getPrice().multiply(new BigDecimal(item.getQty())))
+			.reduce(BigDecimal.ZERO, BigDecimal::add);
+		this.setTotalPrice(total);
+	}
 }

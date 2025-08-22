@@ -55,7 +55,7 @@ public class SaleController {
 		}
 	}
 
-	 @GetMapping("/sales/{id}")
+	 @GetMapping("/order/{id}")
     public ResponseEntity<Sale> getOrder(@PathVariable Long id) {
         try {
             Sale order = saleService.getSaleById(id);
@@ -74,6 +74,14 @@ public class SaleController {
 		}
 		return ResponseEntity.ok(sales);
 	}
-
+	
+	@GetMapping("/customer-sale-history/{customerId}")
+	public ResponseEntity<List<Sale>> getSalesByCustomerId(@PathVariable Long customerId) {
+		List<Sale> sales = saleService.getSalesByCustomerId(customerId);
+		// if (sales.isEmpty()) {
+		// 	return ResponseEntity.noContent().build();
+		// }
+		return ResponseEntity.ok(sales);
+	}
 
 }

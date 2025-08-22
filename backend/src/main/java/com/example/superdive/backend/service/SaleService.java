@@ -111,4 +111,8 @@ public class SaleService {
 		return saleRepo.findAll();
 	}
 
+	public List<Sale> getSalesByCustomerId(Long customerId) {
+		return saleRepo.findByCustomerId(customerId);
+	}
+
 }

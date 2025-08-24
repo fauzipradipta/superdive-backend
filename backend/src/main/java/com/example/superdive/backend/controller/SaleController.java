@@ -78,9 +78,9 @@ public class SaleController {
 	@GetMapping("/customer-sale-history/{customerId}")
 	public ResponseEntity<List<Sale>> getSalesByCustomerId(@PathVariable Long customerId) {
 		List<Sale> sales = saleService.getSalesByCustomerId(customerId);
-		// if (sales.isEmpty()) {
-		// 	return ResponseEntity.noContent().build();
-		// }
+		if (sales.isEmpty()) {
+			return ResponseEntity.noContent().build();
+		}
 		return ResponseEntity.ok(sales);
 	}
 

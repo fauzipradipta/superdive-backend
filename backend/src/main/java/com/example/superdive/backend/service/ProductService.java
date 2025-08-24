@@ -29,6 +29,7 @@ public class ProductService {
 		
 		return productRepository.save(prod);
 	}
+	
 	public List<Product> getProductsByType(String type) {
 	        return productRepository.findByType(ProductType.valueOf(type));
 	    }

@@ -1,8 +1,13 @@
 package com.example.superdive.backend.controller;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -11,6 +16,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.superdive.backend.dto.CustomerDTO;
@@ -40,11 +46,32 @@ public class CustomerController {
         }
     }
 	
-	@GetMapping(value="/{id}")
+	@GetMapping(value="/customers/{id}")
 	public Customer getCustomerById(@PathVariable Long id ) {
 		return customerService.getCustomerById(id);
 	}
 	
+	@GetMapping(value="/all-customers-paged")
+	public ResponseEntity<Map<String,Object>> getAllCustomerPagination(
+		@RequestParam(defaultValue ="1") int page, 
+		@RequestParam(defaultValue ="50") int limit) {
+
+		
+        Pageable pageable = PageRequest.of(page - 1, limit);
+
+       
+        // If CustomerService.getAllCustomer() only returns List<Customer>, you need to modify it or do pagination here
+        Page<Customer> customerPage = customerService.getAllCustomerByPagination(pageable);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("data", customerPage.getContent()); 
+        response.put("currentPage", customerPage.getNumber() + 1);
+        response.put("totalItems", customerPage.getTotalElements());
+        response.put("totalPages", customerPage.getTotalPages());
+
+        return ResponseEntity.ok(response);
+
+	}
 	@GetMapping(value="/all-customer")
 	public List<Customer> getAllCustomerById(){
 		return customerService.getAllCustomer();

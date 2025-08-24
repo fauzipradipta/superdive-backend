@@ -3,7 +3,7 @@ package com.example.superdive.backend.dto;
 public class ReferenceDTO {
 	
 	private String referenceName;
-	private String phoneNum;
+	private String referencePhoneNum;
 	
 	public String getReferenceName() {
 		return referenceName;
@@ -11,16 +11,16 @@ public class ReferenceDTO {
 	public void setReferenceName(String referenceName) {
 		this.referenceName = referenceName;
 	}
-	public String getPhoneNum() {
-		return phoneNum;
+	public String getReferencePhoneNum() {
+		return referencePhoneNum;
 	}
-	public void setPhoneNum(String phoneNum) {
-		this.phoneNum = phoneNum;
+	public void setReferencePhoneNum(String referencePhoneNum) {
+		this.referencePhoneNum = referencePhoneNum;
 	}
-	public ReferenceDTO(String referenceName, String phoneNum) {
+	public ReferenceDTO(String referenceName, String referencePhoneNum) {
 		super();
 		this.referenceName = referenceName;
-		this.phoneNum = phoneNum;
+		this.referencePhoneNum = referencePhoneNum;
 	}
 	public ReferenceDTO() {
 		super();

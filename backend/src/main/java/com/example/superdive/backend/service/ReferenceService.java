@@ -17,7 +17,7 @@ public class ReferenceService {
 	public Reference addReference(ReferenceDTO referenceDTO)throws MessageErrorException {
 		Reference reference = new Reference(); 
 		reference.setReferenceName(referenceDTO.getReferenceName());
-		reference.setReferencePhoneNum(referenceDTO.getPhoneNum());
+		reference.setReferencePhoneNum(referenceDTO.getReferencePhoneNum());
 				
 	
 		if (referenceDTO.getReferenceName() == null || referenceDTO.getReferenceName().isEmpty()) {

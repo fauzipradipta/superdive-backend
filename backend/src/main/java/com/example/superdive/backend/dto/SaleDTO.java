@@ -1,47 +1,32 @@
 package com.example.superdive.backend.dto;
 
-import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 public class SaleDTO {
 	
 	private CustomerDTO customer; 
-	private ProductDTO product;
-//	private Long productId;
-	private int qty; 
-	private BigDecimal totalPrice;
+
+	private List<OrderItemDTO> orderItems = new ArrayList<>();
+
 	public CustomerDTO getCustomer() {
 		return customer;
 	}
+
 	public void setCustomer(CustomerDTO customer) {
 		this.customer = customer;
 	}
+
+	public List<OrderItemDTO> getOrderItems() {
+		return orderItems;
+	}
+
+	public void setOrderItems(List<OrderItemDTO> orderItems) {
+		this.orderItems = orderItems;
+	}
 	
-	public ProductDTO getProduct() {
-		return product;
-	}
-	public void setProduct(ProductDTO product) {
-		this.product = product;
-	}
-	public int getQty() {
-		return qty;
-	}
-	public void setQty(int qty) {
-		this.qty = qty;
-	}
-	public BigDecimal getTotalPrice() {
-		return totalPrice;
-	}
-	public void setTotalPrice(BigDecimal totalPrice) {
-		this.totalPrice = totalPrice;
-	}
-	public SaleDTO(CustomerDTO customer, ProductDTO product, int qty, BigDecimal totalPrice) {
-		this.customer = customer;
-		this.product = product;
-		this.qty = qty;
-		this.totalPrice = totalPrice;
-	}
 	public SaleDTO() {
-		super();
+		// Default constructor
 	}
 	
 	

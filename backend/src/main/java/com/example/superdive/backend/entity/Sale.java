@@ -1,55 +1,53 @@
 package com.example.superdive.backend.entity;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 
 @Entity
 public class Sale {
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id; 
-	@Column(nullable=false)
-	private int qty; 
-	@Column(nullable=false)
-	private BigDecimal totalPrice;
+	private Long id;
+	  
 	@ManyToOne
-	private Customer customer; 
-	
-	@ManyToOne
-	private Product product;
-	
-	
+	private Customer customer;
 
-	public Customer getCustomer() {
-		return customer;
-	}
-	public void setCustomer(Customer customer) {
-		this.customer = customer;
-	}
-	public Product getProduct() {
-		return product;
-	}
-	public void setProduct(Product product) {
-		this.product = product;
-	}
+	@OneToMany(mappedBy="sale",cascade=CascadeType.ALL, orphanRemoval=true)
+	private List <OrderItem> items = new ArrayList<>();
+
+	private BigDecimal totalPrice; 
+	private LocalDateTime orderDate;
+
 	public Long getId() {
 		return id;
 	}
 	public void setId(Long id) {
 		this.id = id;
 	}
-	public int getQty() {
-		return qty;
+	public Customer getCustomer() {
+		return customer;
 	}
-	public void setQty(int qty) {
-		this.qty = qty;
+	public void setCustomer(Customer customer) {
+		this.customer = customer;
+	}
+	public List<OrderItem> getItems() {
+		return items;
+	}
+	public void setItems(List<OrderItem> items) {
+		this.items = items;
 	}
 	public BigDecimal getTotalPrice() {
 		return totalPrice;
@@ -57,18 +55,33 @@ public class Sale {
 	public void setTotalPrice(BigDecimal totalPrice) {
 		this.totalPrice = totalPrice;
 	}
-		public Sale(Long id, int qty, BigDecimal totalPrice, Customer customer, Product product) {
-		super();
+	public LocalDateTime getOrderDate() {
+		return orderDate;
+	}
+	public void setOrderDate(LocalDateTime orderDate) {
+		this.orderDate = orderDate;
+	}
+	public Sale(Long id, Customer customer, List<OrderItem> items, BigDecimal totalPrice, LocalDateTime orderDate) {
 		this.id = id;
-		this.qty = qty;
-		this.totalPrice = totalPrice;
 		this.customer = customer;
-		this.product = product;
+		this.items = items;
+		this.totalPrice = totalPrice;
+		this.orderDate = orderDate;
 	}
+
 	public Sale() {
-		super();
-		// TODO Auto-generated constructor stub
+		// Default constructor
 	}
-	
-	
+
+	public void addItem(OrderItem item) {
+        items.add(item);
+        item.setSale(this);
+    }
+    
+	public void calculateTotal() {
+		BigDecimal total = this.items.stream()
+			.map(item -> item.getPrice().multiply(new BigDecimal(item.getQty())))
+			.reduce(BigDecimal.ZERO, BigDecimal::add);
+		this.setTotalPrice(total);
+	}
 }

@@ -8,7 +8,7 @@ public class OrderHistoryDTO {
     private Long orderId;
     private LocalDateTime orderDate;
     private BigDecimal totalAmount;
-    private List<OrderItemHitoryDTO> items;
+    private List<OrderItemSummaryDTO> items;
     // private String status;
     // private Double totalAmount;
 
@@ -37,10 +37,10 @@ public class OrderHistoryDTO {
         this.totalAmount = totalAmount;
     }
 
-    public List<OrderItemHitoryDTO> getItems() {
+    public List<OrderItemSummaryDTO> getItems() {
         return items;
     }
-    public void setItems(List<OrderItemHitoryDTO> items) {
+    public void setItems(List<OrderItemSummaryDTO> items) {
         this.items = items;
     }
     
@@ -49,7 +49,7 @@ public class OrderHistoryDTO {
     public OrderHistoryDTO() {
     }
 
-    public OrderHistoryDTO(Long orderId, LocalDateTime orderDate, BigDecimal totalAmount), List<OrderItemHitoryDTO> items {
+    public OrderHistoryDTO(Long orderId, LocalDateTime orderDate, BigDecimal totalAmount, List<OrderItemSummaryDTO> items) {
         this.orderId = orderId;
         this.orderDate = orderDate;
         this.totalAmount = totalAmount;

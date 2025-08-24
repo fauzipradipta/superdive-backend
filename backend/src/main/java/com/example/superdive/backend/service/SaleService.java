@@ -4,11 +4,15 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.example.superdive.backend.dto.CustomerOrderHistoryDTO;
+import com.example.superdive.backend.dto.OrderHistoryDTO;
 import com.example.superdive.backend.dto.OrderItemDTO;
+import com.example.superdive.backend.dto.OrderItemSummaryDTO;
 import com.example.superdive.backend.dto.SaleDTO;
 import com.example.superdive.backend.entity.Customer;
 import com.example.superdive.backend.entity.OrderItem;
@@ -115,4 +119,53 @@ public class SaleService {
 		return saleRepo.findByCustomerId(customerId);
 	}
 
+	public CustomerOrderHistoryDTO getCustomerOrderHistoryDTO(Long customerId) throws MessageErrorException{
+
+		//Get Customer Details
+		Customer customer = customerService.getCustomerById(customerId);
+
+		//Get All Sales for this Customer
+		List<Sale> sales = saleRepo.findByCustomerId(customerId);
+
+		if(sales.isEmpty()){
+			throw new MessageErrorException("No orders found for this customer");
+		}
+
+		//Calculate Total spents
+		BigDecimal totalSpent = sales.stream()
+			.map(Sale::getTotalPrice)
+			.reduce(BigDecimal.ZERO, BigDecimal::add);
+
+		//Convert sales to OrderHistoryDTO
+		List<OrderHistoryDTO> orderHistory = sales.stream()
+        .map(this::convertToOrderHistoryDTO)
+        .collect(Collectors.toList());
+    
+		return new CustomerOrderHistoryDTO(
+			customerId,
+			customer.getName(),
+			customer.getPhoneNum(),
+			orderHistory,
+			totalSpent,
+			sales.size()
+		);
+	}
+
+	private OrderHistoryDTO convertToOrderHistoryDTO(Sale sale) {
+		List<OrderItemSummaryDTO> itemSummary = sale.getItems().stream()
+			.map(item -> new OrderItemSummaryDTO(
+				item.getProduct().getId(),
+				item.getProduct().getName(),
+				item.getQty(),
+				item.getPrice().doubleValue()
+			))
+			.collect(Collectors.toList());
+
+		return new OrderHistoryDTO(
+			sale.getId(),
+			sale.getOrderDate(),
+			sale.getTotalPrice(),
+			itemSummary
+		);
+	}
 }

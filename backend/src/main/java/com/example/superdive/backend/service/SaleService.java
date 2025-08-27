@@ -39,10 +39,8 @@ public class SaleService {
 	
 
 	@Transactional
-	public Sale createOrder(SaleDTO saleDTO) throws MessageErrorException  {
-
-		//validate customer
-		if(saleDTO.getOrderItems() == null || saleDTO.getOrderItems().isEmpty()){
+	public Sale createOrder(SaleDTO saleDTO) throws MessageErrorException {
+		if (saleDTO.getOrderItems() == null || saleDTO.getOrderItems().isEmpty()) {
 			throw new MessageErrorException("Order must contain at least one item.");
 		}
 
@@ -50,33 +48,30 @@ public class SaleService {
 			saleDTO.getCustomer().getName(),
 			saleDTO.getCustomer().getPhoneNum()
 		);
-		
+
 		Sale sale = new Sale();
 		sale.setCustomer(customer);
 		sale.setOrderDate(LocalDateTime.now());
 
 		for (OrderItemDTO itemDTO : saleDTO.getOrderItems()) {
+			if (itemDTO.getQty() == null || itemDTO.getQty() <= 0) {
+				throw new MessageErrorException("Invalid quantity for product");
+			}
 
-			if(itemDTO.getPrice() == null || itemDTO.getPrice().compareTo(BigDecimal.ZERO) <= 0){
-                throw new MessageErrorException("Invalid Price for product");
-            }
-                
-            if(itemDTO.getQty() == null){
-                throw new MessageErrorException("Invalid quantity for product");
-            }
-			Product product   = prodService.createProduct(itemDTO.getProductDTO());
-            
-            OrderItem item = new OrderItem();
-            item.setProduct(product);
-            item.setQty(itemDTO.getQty());
-            item.setPrice(itemDTO.getPrice()); 
-            sale.addItem(item);
-        }
-        
-        // Calculate total price
-        sale.calculateTotal();
-        
-        return saleRepo.save(sale);
+			Product product = prodService.createProduct(itemDTO.getProductDTO());
+
+			OrderItem item = new OrderItem();
+			item.setProduct(product);
+			item.setQty(itemDTO.getQty()); // Ensure qty is set
+			item.setPrice(itemDTO.getPrice());
+			item.setSale(sale);			
+			orderItemRepo.save(item); // Save the item first to generate its ID
+
+			sale.addItem(item);
+		}
+
+		sale.calculateTotal();
+		return saleRepo.save(sale);
 	}
 
 	@Transactional
@@ -154,10 +149,12 @@ public class SaleService {
 	private OrderHistoryDTO convertToOrderHistoryDTO(Sale sale) {
 		List<OrderItemSummaryDTO> itemSummary = sale.getItems().stream()
 			.map(item -> new OrderItemSummaryDTO(
-				item.getProduct().getId(),
-				item.getProduct().getName(),
+				// item.getProduct().getId(),
+				item.getProduct().getType(),
+				item.getProduct().getDetails(),
 				item.getQty(),
-				item.getPrice().doubleValue()
+				item.getPrice(),
+				item.getPrice().multiply(BigDecimal.valueOf(item.getQty())) // BigDecimal subtotal
 			))
 			.collect(Collectors.toList());
 

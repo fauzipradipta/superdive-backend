@@ -3,6 +3,7 @@ package com.example.superdive.backend.controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import com.example.superdive.backend.dto.CustomerOrderHistoryDTO;
 import com.example.superdive.backend.dto.OrderItemDTO;
 import com.example.superdive.backend.dto.SaleDTO;
 import com.example.superdive.backend.entity.Sale;
@@ -76,12 +78,11 @@ public class SaleController {
 	}
 	
 	@GetMapping("/customer-sale-history/{customerId}")
-	public ResponseEntity<List<Sale>> getSalesByCustomerId(@PathVariable Long customerId) {
-		List<Sale> sales = saleService.getSalesByCustomerId(customerId);
-		if (sales.isEmpty()) {
-			return ResponseEntity.noContent().build();
-		}
-		return ResponseEntity.ok(sales);
-	}
-
-}
+	public ResponseEntity<?> getCustomerOrderHistory(@PathVariable Long customerId) {
+    try {
+        CustomerOrderHistoryDTO orderHistory = saleService.getCustomerOrderHistoryDTO(customerId);
+        return ResponseEntity.ok(orderHistory);
+    } catch (MessageErrorException e) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+    }
+}}

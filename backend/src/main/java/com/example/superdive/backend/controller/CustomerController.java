@@ -22,7 +22,10 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.superdive.backend.dto.CustomerDTO;
 import com.example.superdive.backend.entity.Customer;
 import com.example.superdive.backend.exception.CustomerAlreadyExistException;
+import com.example.superdive.backend.exception.MessageErrorException;
 import com.example.superdive.backend.service.CustomerService;
+import org.springframework.web.bind.annotation.PutMapping;
+
 
 @RestController
 @RequestMapping("/api")
@@ -76,4 +79,14 @@ public class CustomerController {
 	public List<Customer> getAllCustomerById(){
 		return customerService.getAllCustomer();
 	}
+
+    @PutMapping(value="/customers/update-customer/{id}")
+    public ResponseEntity<Customer> updateCustomer(@PathVariable Long id, @RequestBody CustomerDTO customerDTO) {
+        try {
+            Customer updatedCustomer = customerService.updateCustomer(id, customerDTO);
+            return ResponseEntity.ok(updatedCustomer);
+        } catch (MessageErrorException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+    }
 }

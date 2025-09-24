@@ -18,7 +18,10 @@ import com.example.superdive.backend.exception.CustomerAlreadyExistException;
 import com.example.superdive.backend.exception.MessageErrorException;
 import com.example.superdive.backend.repository.CustomerRepository;
 
+import jakarta.transaction.Transactional;
+
 @Service
+@Transactional
 public class CustomerService {
 	
 	@Autowired
@@ -95,6 +98,7 @@ public class CustomerService {
 		customerRepository.deleteById(id);
 	}
 
+	@Transactional
 	public Customer updateCustomer(Long id, CustomerDTO customerDTO) throws MessageErrorException {
 		Customer existingCustomer = customerRepository.findById(id)
 				.orElseThrow(() -> new RuntimeException("Customer not found"));
@@ -104,32 +108,73 @@ public class CustomerService {
 		existingCustomer.setDob(customerDTO.getDob());
 		existingCustomer.setDiver(customerDTO.getDiver());
 
-		List<DivingData> divingList = customerDTO.getDivingData().stream().map(d -> {
-			DivingData dd = new DivingData();
-			dd.setAgencyName(d.getAgencyName());
-			dd.setLevel(d.getLevel());
-			dd.setReference(d.getReference());
-			dd.setCustomer(existingCustomer);
-			return dd;
-		}).collect(Collectors.toList());
-		// existingCustomer.setDivingData(divingList);
-		existingCustomer.getDivingData().clear();
-		existingCustomer.getDivingData().addAll(divingList);
+//		List<DivingData> divingList = customerDTO.getDivingData().stream().map(d -> {
+//			DivingData dd = new DivingData();
+//			dd.setAgencyName(d.getAgencyName());
+//			dd.setLevel(d.getLevel());
+//			dd.setReference(d.getReference());
+//			dd.setCustomer(existingCustomer);
+//			return dd;
+//		}).collect(Collectors.toList());
+		
+//		List<DivingData> divingList = Optional.ofNullable(customerDTO.getDivingData())
+//				.orElse(Collections.emptyList())
+//				.stream()
+//				.map(d -> {
+//					DivingData dd = new DivingData();
+//					dd.setAgencyName(d.getAgencyName()); 
+//					dd.setLevel(d.getLevel()); 
+//					dd.setReference(d.getReference()); 
+//					dd.setCustomer(existingCustomer);
+//					return dd;
+//				}).collect(Collectors.toList());
+//		 existingCustomer.setDivingData(divingList);
+////		existingCustomer.getDivingData().clear();
+////		existingCustomer.getDivingData().addAll(divingList);
+//
+//		List<Reference> refList = Optional.ofNullable(customerDTO.getReference())
+//				.orElse(Collections.emptyList())
+//				.stream()
+//				.map(r -> {
+//					Reference ref = new Reference();
+//					ref.setReferenceName(r.getReferenceName());
+//					ref.setReferencePhoneNum(r.getReferencePhoneNum());
+//					ref.setCustomer(existingCustomer);
+//					return ref;
+//				})
+//				.collect(Collectors.toList());
+//		 existingCustomer.setReferences(refList);
+		
+		 existingCustomer.getDivingData().clear();
+		    Optional.ofNullable(customerDTO.getDivingData())
+		            .orElse(Collections.emptyList())
+		            .stream()
+		            .map(d -> {
+		                DivingData dd = new DivingData();
+		                dd.setAgencyName(d.getAgencyName());
+		                dd.setLevel(d.getLevel());
+		                dd.setReference(d.getReference());
+		                dd.setCustomer(existingCustomer);
+		                return dd;
+		            })
+		            .forEach(existingCustomer.getDivingData()::add);
 
-		List<Reference> refList = Optional.ofNullable(customerDTO.getReference())
-				.orElse(Collections.emptyList())
-				.stream()
-				.map(r -> {
-					Reference ref = new Reference();
-					ref.setReferenceName(r.getReferenceName());
-					ref.setReferencePhoneNum(r.getReferencePhoneNum());
-					ref.setCustomer(existingCustomer);
-					return ref;
-				})
-				.collect(Collectors.toList());
-		// existingCustomer.setReferences(refList);
-		existingCustomer.getReferences().clear();
-		existingCustomer.getReferences().addAll(refList);
+		    // Fix for references - modify existing collection instead of replacing
+		    existingCustomer.getReferences().clear();
+		    Optional.ofNullable(customerDTO.getReference())
+		            .orElse(Collections.emptyList())
+		            .stream()
+		            .map(r -> {
+		                Reference ref = new Reference();
+		                ref.setReferenceName(r.getReferenceName());
+		                ref.setReferencePhoneNum(r.getReferencePhoneNum());
+		                ref.setCustomer(existingCustomer);
+		                return ref;
+		            })
+		            .forEach(existingCustomer.getReferences()::add);
+
+//		existingCustomer.getReferences().clear();
+//		existingCustomer.getReferences().addAll(refList);
 
 		return customerRepository.save(existingCustomer);
 	}

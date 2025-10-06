@@ -68,12 +68,8 @@ public class SaleController {
     }
 	
 	@GetMapping(value = "/all-sales")
-	public ResponseEntity<List<Sale>> getAllSale() {
-		List<Sale> sales = saleService.getAllSales();
-
-		if (sales.isEmpty()) {
-			return ResponseEntity.noContent().build();
-		}
+	public ResponseEntity<List<Sale>> getAllSale() {		
+		List<Sale>sales = saleService.getAllSales(); 
 		return ResponseEntity.ok(sales);
 	}
 	

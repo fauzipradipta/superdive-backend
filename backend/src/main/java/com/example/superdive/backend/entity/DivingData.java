@@ -23,6 +23,7 @@ public class DivingData {
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name="divingData_id")
 	private Long id; 
 	
 	@Column(nullable=false)

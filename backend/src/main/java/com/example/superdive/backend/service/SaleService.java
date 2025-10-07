@@ -40,65 +40,74 @@ public class SaleService {
 
 	@Transactional
 	public Sale createOrder(SaleDTO saleDTO) throws MessageErrorException {
-		if (saleDTO.getOrderItems() == null || saleDTO.getOrderItems().isEmpty()) {
-			throw new MessageErrorException("Order must contain at least one item.");
-		}
+	    if (saleDTO.getOrderItems() == null || saleDTO.getOrderItems().isEmpty()) {
+	        throw new MessageErrorException("Order must contain at least one item.");
+	    }
 
-		Customer customer = customerService.findCustomerByNameAndPhoneNum(
-			saleDTO.getCustomer().getName(),
-			saleDTO.getCustomer().getPhoneNum()
-		);
+	    Customer customer = customerService.findCustomerByNameAndPhoneNum(
+	        saleDTO.getCustomer().getName(),
+	        saleDTO.getCustomer().getPhoneNum()
+	    );
 
-		Sale sale = new Sale();
-		sale.setCustomer(customer);
-		sale.setOrderDate(LocalDateTime.now());
+	    Sale sale = new Sale();
+	    sale.setCustomer(customer);
+	    sale.setOrderDate(LocalDateTime.now());
 
-		for (OrderItemDTO itemDTO : saleDTO.getOrderItems()) {
-			if (itemDTO.getQty() == null || itemDTO.getQty() <= 0) {
-				throw new MessageErrorException("Invalid quantity for product");
-			}
+	    for (OrderItemDTO itemDTO : saleDTO.getOrderItems()) {
+	        if (itemDTO.getQty() == null || itemDTO.getQty() <= 0) {
+	            throw new MessageErrorException("Invalid quantity for product");
+	        }
 
-			Product product = prodService.createProduct(itemDTO.getProductDTO());
+	        Product product = prodService.createProduct(itemDTO.getProductDTO());
 
-			OrderItem item = new OrderItem();
-			item.setProduct(product);
-			item.setQty(itemDTO.getQty()); // Ensure qty is set
-			item.setPrice(itemDTO.getPrice());
-			item.setSale(sale);			
-			orderItemRepo.save(item); // Save the item first to generate its ID
+	        OrderItem item = new OrderItem();
+	        item.setProduct(product);
+	        item.setQty(itemDTO.getQty());
+	        item.setPrice(itemDTO.getPrice());
+	        item.setSale(sale); // Set the sale reference
+	        
+	        // Remove this line: orderItemRepo.save(item);
+	        sale.addItem(item); // This should handle bidirectional relationship
+	    }
 
-			sale.addItem(item);
-		}
-
-		sale.calculateTotal();
-		return saleRepo.save(sale);
+	    sale.calculateTotal();
+	    return saleRepo.save(sale); // This should cascade and save all items
 	}
 
 	@Transactional
 	public Sale addProductToOrder(Long saleId, OrderItemDTO itemDTO) throws MessageErrorException {
-		
-		Sale sale = saleRepo.findById(saleId)
-			.orElseThrow(() -> new MessageErrorException("Sale not found with id: " + saleId));
-		
-		Product product = prodService.getProductById(itemDTO.getProductId()); 
+	    Sale sale = saleRepo.findById(saleId)
+	        .orElseThrow(() -> new MessageErrorException("Sale not found with id: " + saleId));
+	    
+	    Product product = prodService.getProductById(itemDTO.getProductId()); 
 
-		Optional<OrderItem> existingItem = sale.getItems().stream()
-			.filter(item -> item.getProduct().getId().equals(product.getId()))
-			.findFirst();
-		
-		if(existingItem.isPresent()){
-			OrderItem item = existingItem.get();
-			item.setQty(item.getQty() + itemDTO.getQty());
-		}
-		else{
-			OrderItem item = new OrderItem();
-			item.setProduct(product);
-			item.setQty(itemDTO.getQty());
-			sale.addItem(item);
-		}
+	    Optional<OrderItem> existingItem = sale.getItems().stream()
+	        .filter(item -> item.getProduct().getId().equals(product.getId()))
+	        .findFirst();
+	    
+	    if(existingItem.isPresent()){
+	        OrderItem item = existingItem.get();
+	        item.setQty(item.getQty() + itemDTO.getQty());
+	    } else {
+	        OrderItem item = new OrderItem();
+	        item.setProduct(product);
+	        item.setQty(itemDTO.getQty());
+	        item.setPrice(itemDTO.getPrice()); // Don't forget to set price!
+	        item.setSale(sale);
+	        sale.addItem(item);
+	        
+	        System.out.println("Item sale reference: " + item.getSale());
+	        System.out.println("Sale items count: " + sale.getItems().size());
+	    }
 
-		sale.calculateTotal();
-		return saleRepo.save(sale);
+	    sale.calculateTotal();
+	    
+	   Sale savedSale = saleRepo.save(sale);
+	    System.out.println("Saved sale ID: " + savedSale.getId());
+	    System.out.println("Saved sale items count: " + savedSale.getItems().size());
+	    return savedSale;
+	    
+	    
 	}
 
 	public Sale getSaleById(Long id) throws MessageErrorException {

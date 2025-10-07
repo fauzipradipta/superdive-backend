@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 
 import com.example.superdive.backend.enums.ProductType;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -17,6 +18,7 @@ import jakarta.persistence.Table;
 public class Product {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name="product_id")
 	private Long id;
 	
 	private ProductType type;

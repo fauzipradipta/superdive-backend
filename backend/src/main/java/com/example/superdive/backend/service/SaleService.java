@@ -40,6 +40,8 @@ public class SaleService {
 
 	@Transactional
 	public Sale createOrder(SaleDTO saleDTO) throws MessageErrorException {
+		
+		
 	    if (saleDTO.getOrderItems() == null || saleDTO.getOrderItems().isEmpty()) {
 	        throw new MessageErrorException("Order must contain at least one item.");
 	    }

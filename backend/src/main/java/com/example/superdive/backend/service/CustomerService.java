@@ -107,43 +107,6 @@ public class CustomerService {
 		existingCustomer.setPhoneNum(customerDTO.getPhoneNum());
 		existingCustomer.setDob(customerDTO.getDob());
 		existingCustomer.setDiver(customerDTO.getDiver());
-
-//		List<DivingData> divingList = customerDTO.getDivingData().stream().map(d -> {
-//			DivingData dd = new DivingData();
-//			dd.setAgencyName(d.getAgencyName());
-//			dd.setLevel(d.getLevel());
-//			dd.setReference(d.getReference());
-//			dd.setCustomer(existingCustomer);
-//			return dd;
-//		}).collect(Collectors.toList());
-		
-//		List<DivingData> divingList = Optional.ofNullable(customerDTO.getDivingData())
-//				.orElse(Collections.emptyList())
-//				.stream()
-//				.map(d -> {
-//					DivingData dd = new DivingData();
-//					dd.setAgencyName(d.getAgencyName()); 
-//					dd.setLevel(d.getLevel()); 
-//					dd.setReference(d.getReference()); 
-//					dd.setCustomer(existingCustomer);
-//					return dd;
-//				}).collect(Collectors.toList());
-//		 existingCustomer.setDivingData(divingList);
-////		existingCustomer.getDivingData().clear();
-////		existingCustomer.getDivingData().addAll(divingList);
-//
-//		List<Reference> refList = Optional.ofNullable(customerDTO.getReference())
-//				.orElse(Collections.emptyList())
-//				.stream()
-//				.map(r -> {
-//					Reference ref = new Reference();
-//					ref.setReferenceName(r.getReferenceName());
-//					ref.setReferencePhoneNum(r.getReferencePhoneNum());
-//					ref.setCustomer(existingCustomer);
-//					return ref;
-//				})
-//				.collect(Collectors.toList());
-//		 existingCustomer.setReferences(refList);
 		
 		 existingCustomer.getDivingData().clear();
 		    Optional.ofNullable(customerDTO.getDivingData())

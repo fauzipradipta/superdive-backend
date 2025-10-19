@@ -19,7 +19,7 @@ public class OrderItem {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "orderitem_id")
-    private Long id; // Changed from 'Id' to 'id' (Java naming convention)
+    private Long id; 
 
     @ManyToOne(fetch = FetchType.LAZY) // Added FetchType.LAZY
     @JoinColumn(name = "sale_id", nullable = false)

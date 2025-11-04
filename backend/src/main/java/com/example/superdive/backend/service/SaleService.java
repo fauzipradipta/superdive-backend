@@ -161,7 +161,7 @@ public class SaleService {
 		List<OrderItemSummaryDTO> itemSummary = sale.getItems().stream()
 			.map(item -> new OrderItemSummaryDTO(
 				// item.getProduct().getId(),
-				item.getProduct().getType(),
+				item.getProduct().getType(),toString(),
 				item.getProduct().getDetails(),
 				item.getQty(),
 				item.getPrice(),

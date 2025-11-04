@@ -2,11 +2,11 @@ package com.example.superdive.backend.dto;
 
 import java.math.BigDecimal;
 
-import com.example.superdive.backend.enums.ProductType;
+// import com.example.superdive.backend.enums.String;
 
 public class OrderItemSummaryDTO {
     // private String productName;
-    private ProductType type; 
+    private String type; 
     private String details;
     private Integer quantity;
     private BigDecimal price;
@@ -16,7 +16,7 @@ public class OrderItemSummaryDTO {
     public OrderItemSummaryDTO() {
     }
 
-    public OrderItemSummaryDTO(ProductType type, String details, Integer quantity, BigDecimal price,
+    public OrderItemSummaryDTO(String type, String details, Integer quantity, BigDecimal price,
             BigDecimal subtotal) {
         this.type = type;
         this.details = details;
@@ -25,7 +25,7 @@ public class OrderItemSummaryDTO {
         this.subtotal = subtotal;
     }
 
-    // public OrderItemSummaryDTO(ProductType type, String details, Integer quantity, BigDecimal price, BigDecimal subtotal) {
+    // public OrderItemSummaryDTO(String type, String details, Integer quantity, BigDecimal price, BigDecimal subtotal) {
     //     // this.productName = productName;
     //     this.quantity = quantity;
     //     this.price = price;
@@ -36,11 +36,11 @@ public class OrderItemSummaryDTO {
     // public String getProductName() { return productName; }
     // public void setProductName(String productName) { this.productName = productName; }
         
-    public ProductType getType() {
+    public String getType() {
         return type;
     }
 
-    public void setType(ProductType type) {
+    public void setType(String type) {
         this.type = type;
     }
 

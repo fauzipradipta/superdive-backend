@@ -2,10 +2,12 @@ package com.example.superdive.backend.dto;
 
 import java.math.BigDecimal;
 
+import com.example.superdive.backend.entity.Product;
+
 // import com.example.superdive.backend.enums.String;
 
 public class OrderItemSummaryDTO {
-    // private String productName;
+    private Product product;
     private String type; 
     private String details;
     private Integer quantity;
@@ -16,31 +18,37 @@ public class OrderItemSummaryDTO {
     public OrderItemSummaryDTO() {
     }
 
-    public OrderItemSummaryDTO(String type, String details, Integer quantity, BigDecimal price,
-            BigDecimal subtotal) {
-        this.type = type;
-        this.details = details;
-        this.quantity = quantity;
-        this.price = price;
-        this.subtotal = subtotal;
-    }
+    public OrderItemSummaryDTO(Product product, String type, String details, 
+            Integer quantity, BigDecimal price, BigDecimal subtotal) {
+			this.product = product;
+			this.type = type;
+			this.details = details;
+			this.quantity = quantity;
+			this.price = price;
+			this.subtotal = subtotal;
+	}
 
-    // public OrderItemSummaryDTO(String type, String details, Integer quantity, BigDecimal price, BigDecimal subtotal) {
-    //     // this.productName = productName;
-    //     this.quantity = quantity;
-    //     this.price = price;
-    //     this.subtotal = subtotal;
-    // }
+   
 
     // Getters and setters
     // public String getProductName() { return productName; }
     // public void setProductName(String productName) { this.productName = productName; }
+    
+    
         
     public String getType() {
         return type;
     }
 
-    public void setType(String type) {
+    public Product getProduct() {
+		return product;
+	}
+
+	public void setProduct(Product product) {
+		this.product = product;
+	}
+
+	public void setType(String type) {
         this.type = type;
     }
 

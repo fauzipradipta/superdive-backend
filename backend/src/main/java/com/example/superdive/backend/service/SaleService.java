@@ -158,22 +158,35 @@ public class SaleService {
 	}
 
 	private OrderHistoryDTO convertToOrderHistoryDTO(Sale sale) {
-		List<OrderItemSummaryDTO> itemSummary = sale.getItems().stream()
-			.map(item -> new OrderItemSummaryDTO(
-				// item.getProduct().getId(),
-				item.getProduct().getType(),toString(),
-				item.getProduct().getDetails(),
-				item.getQty(),
-				item.getPrice(),
-				item.getPrice().multiply(BigDecimal.valueOf(item.getQty())) // BigDecimal subtotal
-			))
-			.collect(Collectors.toList());
+		 List<OrderItemSummaryDTO> itemSummary = sale.getItems().stream()
+			        .map(item -> {
+			            Product product = item.getProduct();
+			            
+			            OrderItemSummaryDTO dto = new OrderItemSummaryDTO();
+			            
+			            // Set the Product object
+			            dto.setProduct(product);
+			            
+			            // Set details if available
+			            if (product != null && product.getDetails() != null) {
+			                dto.setDetails(product.getDetails());
+			            } else {
+			                dto.setDetails("No details available");
+			            }
+			            
+			            dto.setQuantity(item.getQty());
+			            dto.setPrice(item.getPrice());
+			            dto.setSubtotal(item.getPrice().multiply(BigDecimal.valueOf(item.getQty())));
+			            
+			            return dto;
+			        })
+			        .collect(Collectors.toList());
 
-		return new OrderHistoryDTO(
-			sale.getId(),
-			sale.getOrderDate(),
-			sale.getTotalPrice(),
-			itemSummary
-		);
+			    return new OrderHistoryDTO(
+			        sale.getId(),
+			        sale.getOrderDate(),
+			        sale.getTotalPrice(),
+			        itemSummary
+			    );
 	}
 }

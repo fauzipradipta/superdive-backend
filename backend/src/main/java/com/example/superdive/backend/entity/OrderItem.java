@@ -3,6 +3,7 @@ package com.example.superdive.backend.entity;
 import java.math.BigDecimal;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -24,6 +25,7 @@ public class OrderItem {
     @ManyToOne(fetch = FetchType.LAZY) // Added FetchType.LAZY
     @JoinColumn(name = "sale_id", nullable = false)
     @JsonBackReference
+    @JsonIgnore
     private Sale sale;
 
     @ManyToOne(fetch = FetchType.LAZY) // Added FetchType.LAZY

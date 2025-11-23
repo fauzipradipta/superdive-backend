@@ -24,97 +24,93 @@ import com.example.superdive.backend.repository.SaleRepository;
 import jakarta.transaction.Transactional;
 
 import com.example.superdive.backend.repository.OrderItemRepository;
+
 @Service
 public class SaleService {
-	
+
 	@Autowired
-	private CustomerService customerService; 
-	@Autowired 
+	private CustomerService customerService;
+	@Autowired
 	private ProductService prodService;
 	@Autowired
 	private SaleRepository saleRepo;
 	@Autowired
 	private OrderItemRepository orderItemRepo;
 
-	
-
 	@Transactional
 	public Sale createOrder(SaleDTO saleDTO) throws MessageErrorException {
-		
-		
-	    if (saleDTO.getOrderItems() == null || saleDTO.getOrderItems().isEmpty()) {
-	        throw new MessageErrorException("Order must contain at least one item.");
-	    }
 
-	    Customer customer = customerService.findCustomerByNameAndPhoneNum(
-	        saleDTO.getCustomer().getName(),
-	        saleDTO.getCustomer().getPhoneNum()
-	    );
+		if (saleDTO.getOrderItems() == null || saleDTO.getOrderItems().isEmpty()) {
+			throw new MessageErrorException("Order must contain at least one item.");
+		}
 
-	    Sale sale = new Sale();
-	    sale.setCustomer(customer);
-	    sale.setOrderDate(LocalDateTime.now());
+		Customer customer = customerService.findCustomerByNameAndPhoneNum(
+				saleDTO.getCustomer().getName(),
+				saleDTO.getCustomer().getPhoneNum());
 
-	    for (OrderItemDTO itemDTO : saleDTO.getOrderItems()) {
-	        if (itemDTO.getQty() == null || itemDTO.getQty() <= 0) {
-	            throw new MessageErrorException("Invalid quantity for product");
-	        }
+		Sale sale = new Sale();
+		sale.setCustomer(customer);
+		sale.setOrderDate(LocalDateTime.now());
 
-	        Product product = prodService.createProduct(itemDTO.getProductDTO());
+		for (OrderItemDTO itemDTO : saleDTO.getOrderItems()) {
+			if (itemDTO.getQty() == null || itemDTO.getQty() <= 0) {
+				throw new MessageErrorException("Invalid quantity for product");
+			}
 
-	        OrderItem item = new OrderItem();
-	        item.setProduct(product);
-	        item.setQty(itemDTO.getQty());
-	        item.setPrice(itemDTO.getPrice());
-	        item.setSale(sale); // Set the sale reference
-	        
-	        // Remove this line: orderItemRepo.save(item);
-	        sale.addItem(item); // This should handle bidirectional relationship
-	    }
+			Product product = prodService.createProduct(itemDTO.getProductDTO());
 
-	    sale.calculateTotal();
-	    return saleRepo.save(sale); // This should cascade and save all items
+			OrderItem item = new OrderItem();
+			item.setProduct(product);
+			item.setQty(itemDTO.getQty());
+			item.setPrice(itemDTO.getPrice());
+			item.setSale(sale); // Set the sale reference
+
+			// Remove this line: orderItemRepo.save(item);
+			sale.addItem(item); // This should handle bidirectional relationship
+		}
+
+		sale.calculateTotal();
+		return saleRepo.save(sale); // This should cascade and save all items
 	}
 
 	@Transactional
 	public Sale addProductToOrder(Long saleId, OrderItemDTO itemDTO) throws MessageErrorException {
-	    Sale sale = saleRepo.findById(saleId)
-	        .orElseThrow(() -> new MessageErrorException("Sale not found with id: " + saleId));
-	    
-	    Product product = prodService.getProductById(itemDTO.getProductId()); 
+		Sale sale = saleRepo.findByIdWithItemsAndProducts(saleId)
+				.orElseThrow(() -> new MessageErrorException("Sale not found with id: " + saleId));
 
-	    Optional<OrderItem> existingItem = sale.getItems().stream()
-	        .filter(item -> item.getProduct().getId().equals(product.getId()))
-	        .findFirst();
-	    
-	    if(existingItem.isPresent()){
-	        OrderItem item = existingItem.get();
-	        item.setQty(item.getQty() + itemDTO.getQty());
-	    } else {
-	        OrderItem item = new OrderItem();
-	        item.setProduct(product);
-	        item.setQty(itemDTO.getQty());
-	        item.setPrice(itemDTO.getPrice()); // Don't forget to set price!
-	        item.setSale(sale);
-	        sale.addItem(item);
-	        
-	        System.out.println("Item sale reference: " + item.getSale());
-	        System.out.println("Sale items count: " + sale.getItems().size());
-	    }
+		Product product = prodService.getProductById(itemDTO.getProductId());
 
-	    sale.calculateTotal();
-	    
-	   Sale savedSale = saleRepo.save(sale);
-	    System.out.println("Saved sale ID: " + savedSale.getId());
-	    System.out.println("Saved sale items count: " + savedSale.getItems().size());
-	    return savedSale;
-	    
-	    
+		Optional<OrderItem> existingItem = sale.getItems().stream()
+				.filter(item -> item.getProduct().getId().equals(product.getId()))
+				.findFirst();
+
+		if (existingItem.isPresent()) {
+			OrderItem item = existingItem.get();
+			item.setQty(item.getQty() + itemDTO.getQty());
+		} else {
+			OrderItem item = new OrderItem();
+			item.setProduct(product);
+			item.setQty(itemDTO.getQty());
+			item.setPrice(itemDTO.getPrice()); // Don't forget to set price!
+			item.setSale(sale);
+			sale.addItem(item);
+
+			System.out.println("Item sale reference: " + item.getSale());
+			System.out.println("Sale items count: " + sale.getItems().size());
+		}
+
+		sale.calculateTotal();
+
+		Sale savedSale = saleRepo.save(sale);
+		System.out.println("Saved sale ID: " + savedSale.getId());
+		System.out.println("Saved sale items count: " + savedSale.getItems().size());
+		return savedSale;
+
 	}
 
 	public Sale getSaleById(Long id) throws MessageErrorException {
-		return saleRepo.findById(id)
-			.orElseThrow(() -> new MessageErrorException("Order not found" ));
+		return saleRepo.findByIdWithItemsAndProducts(id)
+				.orElseThrow(() -> new MessageErrorException("Order not found"));
 	}
 
 	public List<Sale> getAllSales() {
@@ -125,68 +121,72 @@ public class SaleService {
 		return saleRepo.findByCustomerId(customerId);
 	}
 
-	public CustomerOrderHistoryDTO getCustomerOrderHistoryDTO(Long customerId) throws MessageErrorException{
+	public CustomerOrderHistoryDTO getCustomerOrderHistoryDTO(Long customerId) throws MessageErrorException {
 
-		//Get Customer Details
+		// Get Customer Details
 		Customer customer = customerService.getCustomerById(customerId);
 
-		//Get All Sales for this Customer
-		List<Sale> sales = saleRepo.findByCustomerId(customerId);
+		// Get All Sales for this Customer
+		List<Sale> sales = saleRepo.findByCustomerIdWithItemsAndProducts(customerId);
 
-		if(sales.isEmpty()){
+		if (sales.isEmpty()) {
 			throw new MessageErrorException("No orders found for this customer");
 		}
 
-		//Calculate Total spents
+		// Calculate Total spents
 		BigDecimal totalSpent = sales.stream()
-			.map(Sale::getTotalPrice)
-			.reduce(BigDecimal.ZERO, BigDecimal::add);
+				.map(Sale::getTotalPrice)
+				.reduce(BigDecimal.ZERO, BigDecimal::add);
 
-		//Convert sales to OrderHistoryDTO
+		// Convert sales to OrderHistoryDTO
 		List<OrderHistoryDTO> orderHistory = sales.stream()
-        .map(this::convertToOrderHistoryDTO)
-        .collect(Collectors.toList());
-    
+				.map(this::convertToOrderHistoryDTO)
+				.collect(Collectors.toList());
+
 		return new CustomerOrderHistoryDTO(
-			customerId,
-			customer.getName(),
-			customer.getPhoneNum(),
-			orderHistory,
-			totalSpent,
-			sales.size()
-		);
+				customerId,
+				customer.getName(),
+				customer.getPhoneNum(),
+				orderHistory,
+				totalSpent,
+				sales.size());
 	}
 
 	private OrderHistoryDTO convertToOrderHistoryDTO(Sale sale) {
-		 List<OrderItemSummaryDTO> itemSummary = sale.getItems().stream()
-			        .map(item -> {
-			            Product product = item.getProduct();
-			            
-			            OrderItemSummaryDTO dto = new OrderItemSummaryDTO();
-			            
-			            // Set the Product object
-			            dto.setProduct(product);
-			            
-			            // Set details if available
-			            if (product != null && product.getDetails() != null) {
-			                dto.setDetails(product.getDetails());
-			            } else {
-			                dto.setDetails("No details available");
-			            }
-			            
-			            dto.setQuantity(item.getQty());
-			            dto.setPrice(item.getPrice());
-			            dto.setSubtotal(item.getPrice().multiply(BigDecimal.valueOf(item.getQty())));
-			            
-			            return dto;
-			        })
-			        .collect(Collectors.toList());
+		List<OrderItemSummaryDTO> itemSummary = sale.getItems().stream()
+				.map(item -> {
+					Product product = item.getProduct();
 
-			    return new OrderHistoryDTO(
-			        sale.getId(),
-			        sale.getOrderDate(),
-			        sale.getTotalPrice(),
-			        itemSummary
-			    );
+					OrderItemSummaryDTO dto = new OrderItemSummaryDTO();
+
+					// Set the Product object
+					// dto.setProduct(product);
+
+					// Set details if available
+					if (product != null) {
+						dto.setProductId(product.getId());
+						dto.setType(product.getType() != null ? product.getType().name() : "Unknown");
+						dto.setDetails(product.getDetails() != null ? product.getDetails() : "No details available");
+						dto.setPrice(product.getPrice());
+					} else {
+						dto.setProductId(null);
+						dto.setType("Unknown");
+						dto.setDetails("Product not found");
+						dto.setPrice(BigDecimal.ZERO);
+					}
+
+					dto.setQuantity(item.getQty());
+					dto.setPrice(item.getPrice());
+					dto.setSubtotal(item.getPrice().multiply(BigDecimal.valueOf(item.getQty())));
+
+					return dto;
+				})
+				.collect(Collectors.toList());
+
+		return new OrderHistoryDTO(
+				sale.getId(),
+				sale.getOrderDate(),
+				sale.getTotalPrice(),
+				itemSummary);
 	}
 }

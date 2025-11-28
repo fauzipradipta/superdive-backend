@@ -57,7 +57,18 @@ public class SaleService {
 				throw new MessageErrorException("Invalid quantity for product");
 			}
 
-			Product product = prodService.createProduct(itemDTO.getProductDTO());
+			// FIX: Use existing product by ID instead of creating a new one
+			// This ensures type and details are properly loaded from the database
+			Product product;
+			if (itemDTO.getProductId() != null) {
+				// Use existing product
+				product = prodService.getProductById(itemDTO.getProductId());
+			} else if (itemDTO.getProductDTO() != null) {
+				// Fallback: create new product only if ProductDTO is provided
+				product = prodService.createProduct(itemDTO.getProductDTO());
+			} else {
+				throw new MessageErrorException("Product ID or Product details must be provided");
+			}
 
 			OrderItem item = new OrderItem();
 			item.setProduct(product);
@@ -162,6 +173,14 @@ public class SaleService {
 					// Set the Product object
 					// dto.setProduct(product);
 
+					// DEBUG: Print product information
+					System.out.println("=== DEBUG Product Info ===");
+					System.out.println("Product ID: " + (product != null ? product.getId() : "NULL"));
+					System.out.println("Product Type: " + (product != null ? product.getType() : "NULL"));
+					System.out.println("Product Details: " + (product != null ? product.getDetails() : "NULL"));
+					System.out.println("Product Price: " + (product != null ? product.getPrice() : "NULL"));
+					System.out.println("========================");
+
 					// Set details if available
 					if (product != null) {
 						dto.setProductId(product.getId());
@@ -171,7 +190,7 @@ public class SaleService {
 					} else {
 						dto.setProductId(null);
 						dto.setType("Unknown");
-						dto.setDetails("Product not found");
+						dto.setDetails("Product not found"); 
 						dto.setPrice(BigDecimal.ZERO);
 					}
 

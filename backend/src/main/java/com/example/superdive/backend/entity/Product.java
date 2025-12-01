@@ -26,7 +26,7 @@ public class Product {
 	@Enumerated(EnumType.STRING)
 	@Column(name="type", nullable=false)
 	private ProductType type;
-	@Column(name="details", nullable=false)
+	@Column(name="details")
 	private String details;
 	@Column(name="price", nullable=false)   
 	private BigDecimal price;

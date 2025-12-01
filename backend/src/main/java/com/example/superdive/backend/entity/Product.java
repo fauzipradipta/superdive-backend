@@ -7,6 +7,7 @@ import com.example.superdive.backend.enums.ProductType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.EnumType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -22,10 +23,12 @@ public class Product {
 	@Column(name="product_id")
 	private Long id;
 	
-	@Enumerated(EnumType.String)
+	@Enumerated(EnumType.STRING)
 	@Column(name="type", nullable=false)
 	private ProductType type;
+	@Column(name="details", nullable=false)
 	private String details;
+	@Column(name="price", nullable=false)   
 	private BigDecimal price;
 	
 	public Long getId() {

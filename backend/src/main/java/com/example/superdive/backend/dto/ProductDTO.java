@@ -8,6 +8,7 @@ import com.example.superdive.backend.enums.ProductType;
 public class ProductDTO {
 
 	private Long id;
+	private String name;
 	private ProductType type;
 	private String details;
 	private BigDecimal price;
@@ -20,6 +21,13 @@ public class ProductDTO {
 		this.id = id;
 	}
 
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
 	public ProductType getType() {
 		return type;
 	}
@@ -44,9 +52,10 @@ public class ProductDTO {
 		this.price = price;
 	}
 
-	public ProductDTO(Long id, ProductType type, String details, BigDecimal price) {
+	public ProductDTO(Long id, String name,ProductType type, String details, BigDecimal price) {
 		super();
 		this.id = id;
+		this.name = name;
 		this.type = type;
 		this.details = details;
 		this.price = price;
@@ -56,5 +65,7 @@ public class ProductDTO {
 		super();
 		// TODO Auto-generated constructor stub
 	}
+
+	
 
 }

@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import com.example.superdive.backend.dto.ProductDTO;
 import com.example.superdive.backend.entity.Product;
 import com.example.superdive.backend.enums.ProductType;
+import com.example.superdive.backend.exception.MessageErrorException;
 import com.example.superdive.backend.repository.ProductRepository;
 
 @Service
@@ -21,13 +22,26 @@ public class ProductService {
 		this.productRepository = productRepository;
 	}
 	
-	public Product createProduct(ProductDTO prodDTO) {
-		Product prod = new Product(); 
-		prod.setType(prodDTO.getType());
-		prod.setDetails(prodDTO.getDetails());
-		prod.setPrice(prodDTO.getPrice());
+	public Product createProduct(ProductDTO productDTO) throws MessageErrorException {
 		
-		return productRepository.save(prod);
+	if (productDTO.getName() == null || productDTO.getName().isEmpty()) {
+		throw new MessageErrorException("Product name cannot be null or empty");
+	}
+	if (productDTO.getType() == null) {
+	throw new MessageErrorException("Product type cannot be null");
+    }
+    if (productDTO.getDetails() == null || productDTO.getDetails().isEmpty()) {
+        throw new MessageErrorException("Product details cannot be null or empty");
+    }
+    if (productDTO.getPrice() == null) {
+        throw new MessageErrorException("Product price cannot be null");
+    }
+		Product product = new Product(); 
+		product.setType(productDTO.getType());
+		product.setDetails(productDTO.getDetails());
+		product.setPrice(productDTO.getPrice());
+		
+		return productRepository.save(product);
 	}
 	
 	public List<Product> getProductsByType(String type) {

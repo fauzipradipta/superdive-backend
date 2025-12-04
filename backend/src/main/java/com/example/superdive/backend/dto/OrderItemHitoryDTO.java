@@ -2,7 +2,7 @@ package com.example.superdive.backend.dto;
 
 public class OrderItemHitoryDTO {
     private Long productId;
-    private String productName;
+    // private String productName;
     private Integer quantity;
     private Double price;
 
@@ -15,13 +15,13 @@ public class OrderItemHitoryDTO {
         this.productId = productId;
     }
 
-    public String getProductName() {
-        return productName;
-    }
+    // public String getProductName() {
+    //     return productName;
+    // }
 
-    public void setProductName(String productName) {
-        this.productName = productName;
-    }
+    // public void setProductName(String productName) {
+    //     this.productName = productName;
+    // }
 
     public Integer getQuantity() {
         return quantity;
@@ -43,9 +43,9 @@ public class OrderItemHitoryDTO {
     public OrderItemHitoryDTO() {
     }
 
-    public OrderItemHitoryDTO(Long productId, String productName, Integer quantity, Double price) {
+    public OrderItemHitoryDTO(Long productId, Integer quantity, Double price) {
         this.productId = productId;
-        this.productName = productName;
+        // this.productName = productName;
         this.quantity = quantity;
         this.price = price;
     }

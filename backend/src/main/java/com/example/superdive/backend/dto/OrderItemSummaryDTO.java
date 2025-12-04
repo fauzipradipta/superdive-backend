@@ -8,6 +8,7 @@ import com.example.superdive.backend.entity.Product;
 
 public class OrderItemSummaryDTO {
     private Long productId;
+    private String name;
     private String type;
     private String details;
     private Integer quantity;
@@ -18,9 +19,10 @@ public class OrderItemSummaryDTO {
     public OrderItemSummaryDTO() {
     }
 
-    public OrderItemSummaryDTO(Long productId, String type, String details,
+    public OrderItemSummaryDTO(Long productId, String name, String type, String details,
             Integer quantity, BigDecimal price, BigDecimal subtotal) {
         this.productId = productId;
+        this.name = name;
         this.type = type;
         this.details = details;
         this.quantity = quantity;
@@ -32,6 +34,14 @@ public class OrderItemSummaryDTO {
     // public String getProductName() { return productName; }
     // public void setProductName(String productName) { this.productName =
     // productName; }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
 
     public String getType() {
         return type;

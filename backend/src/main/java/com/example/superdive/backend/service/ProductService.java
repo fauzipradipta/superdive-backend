@@ -21,39 +21,29 @@ public class ProductService {
 		// TODO Auto-generated constructor stub
 		this.productRepository = productRepository;
 	}
-	
+    
 	public Product createProduct(ProductDTO prodDTO) throws MessageErrorException {
-		// Validate required fields
+		if (prodDTO == null) {
+			throw new MessageErrorException("Product data is required");
+		}
+
+		if( prodDTO.getName() == null) {
+			throw new MessageErrorException("Product name is required");
+		}
 		if (prodDTO.getType() == null) {
-			throw new RuntimeException("Product type is required");
+			throw new MessageErrorException("Product type is required");
 		}
 		if (prodDTO.getPrice() == null) {
-			throw new RuntimeException("Product price is required");
+			throw new MessageErrorException("Product price is required");
 		}
-		
-		Product prod = new Product(); 
+
+		Product prod = new Product();
+		prod.setName(prodDTO.getName());
 		prod.setType(prodDTO.getType());
-		prod.setDetails(prodDTO.getDetails() != null ? prodDTO.getDetails() : "");
+		prod.setDetails(prodDTO.getDetails());
 		prod.setPrice(prodDTO.getPrice());
-		
-	if (prodDTO.getName() == null || prodDTO.getName().isEmpty()) {
-		throw new MessageErrorException("Product name cannot be null or empty");
-	}
-	if (prodDTO.getType() == null) {
-		throw new MessageErrorException("Product type cannot be null");
-    }
-    if (prodDTO.getDetails() == null || prodDTO.getDetails().isEmpty()) {
-        throw new MessageErrorException("Product details cannot be null or empty");
-    }
-    if (prodDTO.getPrice() == null) {
-        throw new MessageErrorException("Product price cannot be null");
-    }
-		Product product = new Product(); 
-		product.setType(prodDTO.getType());
-		product.setDetails(prodDTO.getDetails());
-		product.setPrice(prodDTO.getPrice());
-		
-		return productRepository.save(product);
+
+		return productRepository.save(prod);
 	}
 	
 	public List<Product> getProductsByType(String type) {

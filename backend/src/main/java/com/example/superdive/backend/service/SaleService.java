@@ -164,11 +164,13 @@ public class SaleService {
 
 					if (product != null) {
 						dto.setProductId(product.getId());
+						dto.setName(product.getName() != null ? product.getName() : "Unknown");
 						dto.setType(product.getType() != null ? product.getType().name() : "Unknown");
 						dto.setDetails(product.getDetails() != null ? product.getDetails() : "No details available");
 						dto.setPrice(product.getPrice());
 					} else {
 						dto.setProductId(null);
+						dto.setName("Unknown");
 						dto.setType("Unknown");
 						dto.setDetails("No details available");
 						dto.setPrice(BigDecimal.ZERO);

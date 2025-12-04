@@ -63,14 +63,14 @@ public class SaleService {
 			item.setProduct(product);
 			item.setQty(itemDTO.getQty());
 			item.setPrice(itemDTO.getPrice());
-			item.setSale(sale); // Set the sale reference
+			item.setSale(sale); 
 
-			// Remove this line: orderItemRepo.save(item);
-			sale.addItem(item); // This should handle bidirectional relationship
+			
+			sale.addItem(item); 
 		}
 
 		sale.calculateTotal();
-		return saleRepo.save(sale); // This should cascade and save all items
+		return saleRepo.save(sale); 
 	}
 
 	@Transactional
@@ -91,7 +91,7 @@ public class SaleService {
 			OrderItem item = new OrderItem();
 			item.setProduct(product);
 			item.setQty(itemDTO.getQty());
-			item.setPrice(itemDTO.getPrice()); // Don't forget to set price!
+			item.setPrice(itemDTO.getPrice()); 
 			item.setSale(sale);
 			sale.addItem(item);
 
@@ -123,22 +123,22 @@ public class SaleService {
 
 	public CustomerOrderHistoryDTO getCustomerOrderHistoryDTO(Long customerId) throws MessageErrorException {
 
-		// Get Customer Details
+		
 		Customer customer = customerService.getCustomerById(customerId);
 
-		// Get All Sales for this Customer
+		
 		List<Sale> sales = saleRepo.findByCustomerIdWithItemsAndProducts(customerId);
 
 		if (sales.isEmpty()) {
 			throw new MessageErrorException("No orders found for this customer");
 		}
 
-		// Calculate Total spents
+		
 		BigDecimal totalSpent = sales.stream()
 				.map(Sale::getTotalPrice)
 				.reduce(BigDecimal.ZERO, BigDecimal::add);
 
-		// Convert sales to OrderHistoryDTO
+		
 		List<OrderHistoryDTO> orderHistory = sales.stream()
 				.map(this::convertToOrderHistoryDTO)
 				.collect(Collectors.toList());
@@ -159,10 +159,6 @@ public class SaleService {
 
 					OrderItemSummaryDTO dto = new OrderItemSummaryDTO();
 
-					// Set the Product object
-					// dto.setProduct(product);
-
-					// Set details if available
 					if (product != null) {
 						dto.setProductId(product.getId());
 						dto.setType(product.getType() != null ? product.getType().name() : "Unknown");

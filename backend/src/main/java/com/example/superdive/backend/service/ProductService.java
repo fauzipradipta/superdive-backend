@@ -22,9 +22,17 @@ public class ProductService {
 	}
 	
 	public Product createProduct(ProductDTO prodDTO) {
+		// Validate required fields
+		if (prodDTO.getType() == null) {
+			throw new RuntimeException("Product type is required");
+		}
+		if (prodDTO.getPrice() == null) {
+			throw new RuntimeException("Product price is required");
+		}
+		
 		Product prod = new Product(); 
 		prod.setType(prodDTO.getType());
-		prod.setDetails(prodDTO.getDetails());
+		prod.setDetails(prodDTO.getDetails() != null ? prodDTO.getDetails() : "");
 		prod.setPrice(prodDTO.getPrice());
 		
 		return productRepository.save(prod);

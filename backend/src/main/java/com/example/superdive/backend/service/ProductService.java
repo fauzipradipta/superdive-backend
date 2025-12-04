@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import com.example.superdive.backend.dto.ProductDTO;
 import com.example.superdive.backend.entity.Product;
 import com.example.superdive.backend.enums.ProductType;
+import com.example.superdive.backend.exception.MessageErrorException;
 import com.example.superdive.backend.repository.ProductRepository;
 
 @Service
@@ -21,7 +22,7 @@ public class ProductService {
 		this.productRepository = productRepository;
 	}
 	
-	public Product createProduct(ProductDTO prodDTO) {
+	public Product createProduct(ProductDTO prodDTO) throws MessageErrorException {
 		// Validate required fields
 		if (prodDTO.getType() == null) {
 			throw new RuntimeException("Product type is required");
@@ -35,7 +36,24 @@ public class ProductService {
 		prod.setDetails(prodDTO.getDetails() != null ? prodDTO.getDetails() : "");
 		prod.setPrice(prodDTO.getPrice());
 		
-		return productRepository.save(prod);
+	if (prodDTO.getName() == null || prodDTO.getName().isEmpty()) {
+		throw new MessageErrorException("Product name cannot be null or empty");
+	}
+	if (prodDTO.getType() == null) {
+		throw new MessageErrorException("Product type cannot be null");
+    }
+    if (prodDTO.getDetails() == null || prodDTO.getDetails().isEmpty()) {
+        throw new MessageErrorException("Product details cannot be null or empty");
+    }
+    if (prodDTO.getPrice() == null) {
+        throw new MessageErrorException("Product price cannot be null");
+    }
+		Product product = new Product(); 
+		product.setType(prodDTO.getType());
+		product.setDetails(prodDTO.getDetails());
+		product.setPrice(prodDTO.getPrice());
+		
+		return productRepository.save(product);
 	}
 	
 	public List<Product> getProductsByType(String type) {

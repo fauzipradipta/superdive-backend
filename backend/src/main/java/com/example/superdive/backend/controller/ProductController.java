@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.superdive.backend.dto.ProductDTO;
-import com.example.superdive.backend.dto.SaleDTO;
+import com.example.superdive.backend.dto.OrderDTO;
 import com.example.superdive.backend.entity.Product;
 import com.example.superdive.backend.enums.ProductType;
 import com.example.superdive.backend.service.ProductService;

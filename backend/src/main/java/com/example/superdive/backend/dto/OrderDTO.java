@@ -3,7 +3,7 @@ package com.example.superdive.backend.dto;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SaleDTO {
+public class OrderDTO {
 	
 	private CustomerDTO customer; 
 
@@ -25,7 +25,7 @@ public class SaleDTO {
 		this.orderItems = orderItems;
 	}
 	
-	public SaleDTO() {
+	public OrderDTO() {
 		// Default constructor
 	}
 	

@@ -15,29 +15,29 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.example.superdive.backend.dto.CustomerOrderHistoryDTO;
 import com.example.superdive.backend.dto.OrderItemDTO;
-import com.example.superdive.backend.dto.SaleDTO;
-import com.example.superdive.backend.entity.Sale;
+import com.example.superdive.backend.dto.OrderDTO;
+import com.example.superdive.backend.entity.Order;
 import com.example.superdive.backend.exception.MessageErrorException;
-import com.example.superdive.backend.service.SaleService;
+import com.example.superdive.backend.service.OrderService;
 
 
 @Controller
 @RequestMapping("/api")
 @CrossOrigin("localhost:3000")
-public class SaleController {
+public class OrderController {
 	
 	@Autowired
-	private SaleService saleService; 
+	private OrderService OrderService; 
 	
-	public SaleController(SaleService saleService) {
-		this.saleService = saleService;
+	public OrderController(OrderService OrderService) {
+		this.OrderService = OrderService;
 	}
 	
-	@PostMapping(value = "/create-sale")
-	public ResponseEntity<String> createSale(@RequestBody SaleDTO orderDTO){
+	@PostMapping(value = "/create-Order")
+	public ResponseEntity<String> createOrder(@RequestBody OrderDTO orderDTO){
 		
 		try{
-			saleService.createOrder(orderDTO);
+			OrderService.createOrder(orderDTO);
 			return ResponseEntity.ok("Order successfully recorded");
 		}
 		catch (MessageErrorException e) {
@@ -48,35 +48,35 @@ public class SaleController {
 	}
 
 	@PostMapping(value = "/{orderId}/items")
-	public ResponseEntity<Sale>addProductToOrder(@PathVariable Long orderId, @RequestBody OrderItemDTO orderDTO) {
+	public ResponseEntity<Order>addProductToOrder(@PathVariable Long orderId, @RequestBody OrderItemDTO orderDTO) {
 		try {
-			Sale sale = saleService.addProductToOrder(orderId, orderDTO);
-			return ResponseEntity.ok(sale);
+			Order Order = OrderService.addProductToOrder(orderId, orderDTO);
+			return ResponseEntity.ok(Order);
 		} catch (MessageErrorException e) {
 			return ResponseEntity.badRequest().body(null);
 		}
 	}
 
 	 @GetMapping("/order/{id}")
-    public ResponseEntity<Sale> getOrder(@PathVariable Long id) {
+    public ResponseEntity<Order> getOrder(@PathVariable Long id) {
         try {
-            Sale order = saleService.getSaleById(id);
+            Order order = OrderService.getOrderById(id);
             return ResponseEntity.ok(order);
         } catch (MessageErrorException e) {
             return ResponseEntity.notFound().build();
         }
     }
 	
-	@GetMapping(value = "/all-sales")
-	public ResponseEntity<List<Sale>> getAllSale() {		
-		List<Sale>sales = saleService.getAllSales(); 
-		return ResponseEntity.ok(sales);
+	@GetMapping(value = "/all-Orders")
+	public ResponseEntity<List<Order>> getAllOrder() {		
+		List<Order>Orders = OrderService.getAllOrders(); 
+		return ResponseEntity.ok(Orders);
 	}
 	
-	@GetMapping("/customer-sale-history/{customerId}")
+	@GetMapping("/customer-Order-history/{customerId}")
 	public ResponseEntity<?> getCustomerOrderHistory(@PathVariable Long customerId) {
     try {
-        CustomerOrderHistoryDTO orderHistory = saleService.getCustomerOrderHistoryDTO(customerId);
+        CustomerOrderHistoryDTO orderHistory = OrderService.getCustomerOrderHistoryDTO(customerId);
         return ResponseEntity.ok(orderHistory);
     } catch (MessageErrorException e) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());

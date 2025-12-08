@@ -23,10 +23,10 @@ public class OrderItem {
     private Long id; 
 
     @ManyToOne(fetch = FetchType.LAZY) // Added FetchType.LAZY
-    @JoinColumn(name = "sale_id", nullable = false)
+    @JoinColumn(name = "Order_id", nullable = false)
     @JsonBackReference
     @JsonIgnore
-    private Sale sale;
+    private Order Order;
 
     @ManyToOne(fetch = FetchType.LAZY) // Added FetchType.LAZY
     @JoinColumn(name = "product_id", nullable = false) // Added nullable = false
@@ -42,11 +42,11 @@ public class OrderItem {
     public void setId(Long id) {
         this.id = id;
     }
-    public Sale getSale() {
-        return sale;
+    public Order getOrder() {
+        return Order;
     }
-    public void setSale(Sale sale) {
-        this.sale = sale;
+    public void setOrder(Order Order) {
+        this.Order = Order;
     }
     public Product getProduct() {
         return product;
@@ -67,9 +67,9 @@ public class OrderItem {
         this.price = price;
     }
     
-    public OrderItem(Long id, Sale sale, Product product, Integer qty, BigDecimal price) {
+    public OrderItem(Long id, Order Order, Product product, Integer qty, BigDecimal price) {
         this.id = id;
-        this.sale = sale;
+        this.Order = Order;
         this.product = product;
         this.qty = qty;
         this.price = price;
@@ -83,7 +83,7 @@ public class OrderItem {
     public String toString() {
         return "OrderItem{" +
                 "id=" + id +
-                ", sale=" + (sale != null ? sale.getId() : "null") +
+                ", Order=" + (Order != null ? Order.getId() : "null") +
                 ", product=" + (product != null ? product.getId() : "null") +
                 ", qty=" + qty +
                 ", price=" + price +

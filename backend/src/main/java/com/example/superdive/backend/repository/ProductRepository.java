@@ -11,7 +11,7 @@ import com.example.superdive.backend.enums.ProductType;
 
 @Repository
 public interface ProductRepository extends JpaRepository< Product,Long> {
-	@Query("Select s from Order s WHERE s.product.productType = :productType")
+	@Query("Select s from orders s WHERE s.product.productType = :productType")
 	List<Product> findByType(ProductType type);
 
 	

@@ -3,11 +3,11 @@ package com.example.superdive.backend.dto;
 import java.util.ArrayList;
 import java.util.List;
 
-public class OrderDTO {
+public class OrdersDTO {
 	
 	private CustomerDTO customer; 
 
-	private List<OrderItemDTO> orderItems = new ArrayList<>();
+	private List<OrdersItemDTO> ordersItems = new ArrayList<>();
 
 	public CustomerDTO getCustomer() {
 		return customer;
@@ -17,15 +17,15 @@ public class OrderDTO {
 		this.customer = customer;
 	}
 
-	public List<OrderItemDTO> getOrderItems() {
-		return orderItems;
+	public List<OrdersItemDTO> getordersItems() {
+		return ordersItems;
 	}
 
-	public void setOrderItems(List<OrderItemDTO> orderItems) {
-		this.orderItems = orderItems;
+	public void setordersItems(List<OrdersItemDTO> ordersItems) {
+		this.ordersItems = ordersItems;
 	}
 	
-	public OrderDTO() {
+	public OrdersDTO() {
 		// Default constructor
 	}
 	

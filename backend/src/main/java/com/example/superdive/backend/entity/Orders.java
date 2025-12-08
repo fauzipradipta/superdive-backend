@@ -18,25 +18,28 @@ import jakarta.persistence.JoinColumn;
 //import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 
 @Entity
-public class Order {
+@Table(name = "orders")
+public class Orders {
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name="Order_id")
+	@Column(name="orders_id")
 	private Long id;
 	  
 	@ManyToOne
 	@JoinColumn(name = "customer_id")
 	private Customer customer;
 
-	@OneToMany(mappedBy="Order",cascade=CascadeType.ALL, orphanRemoval=true)
+	@OneToMany(mappedBy="orders",cascade=CascadeType.ALL, orphanRemoval=true)
 	@JsonManagedReference
-	private List <OrderItem> items = new ArrayList<>();
+	private List <OrdersItem> items = new ArrayList<>();
 
 	private BigDecimal totalPrice; 
-	private LocalDateTime orderDate;
+	@Column(name="orders_date")
+	private LocalDateTime ordersDate;
 
 	public Long getId() {
 		return id;
@@ -50,10 +53,10 @@ public class Order {
 	public void setCustomer(Customer customer) {
 		this.customer = customer;
 	}
-	public List<OrderItem> getItems() {
+	public List<OrdersItem> getItems() {
 		return items;
 	}
-	public void setItems(List<OrderItem> items) {
+	public void setItems(List<OrdersItem> items) {
 		this.items = items;
 	}
 	public BigDecimal getTotalPrice() {
@@ -62,27 +65,27 @@ public class Order {
 	public void setTotalPrice(BigDecimal totalPrice) {
 		this.totalPrice = totalPrice;
 	}
-	public LocalDateTime getOrderDate() {
-		return orderDate;
+	public LocalDateTime getordersDate() {
+		return ordersDate;
 	}
-	public void setOrderDate(LocalDateTime orderDate) {
-		this.orderDate = orderDate;
+	public void setordersDate(LocalDateTime ordersDate) {
+		this.ordersDate = ordersDate;
 	}
-	public Order(Long id, Customer customer, List<OrderItem> items, BigDecimal totalPrice, LocalDateTime orderDate) {
+	public Orders(Long id, Customer customer, List<OrdersItem> items, BigDecimal totalPrice, LocalDateTime ordersDate) {
 		this.id = id;
 		this.customer = customer;
 		this.items = items;
 		this.totalPrice = totalPrice;
-		this.orderDate = orderDate;
+		this.ordersDate = ordersDate;
 	}
 
-	public Order() {
+	public Orders() {
 		// Default constructor
 	}
 
-	public void addItem(OrderItem item) {
+	public void addItem(OrdersItem item) {
         items.add(item);
-        item.setOrder(this);
+        item.setorders(this);
     }
     
 	public void calculateTotal() {

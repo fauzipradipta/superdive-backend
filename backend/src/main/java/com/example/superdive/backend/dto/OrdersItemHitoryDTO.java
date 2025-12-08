@@ -1,6 +1,6 @@
 package com.example.superdive.backend.dto;
 
-public class OrderItemHitoryDTO {
+public class OrdersItemHitoryDTO {
     private Long productId;
     // private String productName;
     private Integer quantity;
@@ -40,10 +40,10 @@ public class OrderItemHitoryDTO {
     }
 
     // Default constructor
-    public OrderItemHitoryDTO() {
+    public OrdersItemHitoryDTO() {
     }
 
-    public OrderItemHitoryDTO(Long productId, Integer quantity, Double price) {
+    public OrdersItemHitoryDTO(Long productId, Integer quantity, Double price) {
         this.productId = productId;
         // this.productName = productName;
         this.quantity = quantity;

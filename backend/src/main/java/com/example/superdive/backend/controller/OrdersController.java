@@ -34,7 +34,7 @@ public class OrdersController {
 	}
 	
 	@PostMapping(value = "/create-orders")
-	public ResponseEntity<String> createOrders(@RequestBody OrdersDTO ordersDTO){
+	public ResponseEntity<?> createOrders(@RequestBody OrdersDTO ordersDTO){
 		
 		try{
 			ordersService.createOrders(ordersDTO);
@@ -67,18 +67,19 @@ public class OrdersController {
         }
     }
 	
-	@GetMapping(value = "/all-orderss")
+	@GetMapping(value = "/all-orders")
 	public ResponseEntity<List<Orders>> getAllorders() {		
-		List<Orders>orderss = ordersService.getAllOrders(); 
-		return ResponseEntity.ok(orderss);
+		List<Orders>orders = ordersService.getAllOrders(); 
+		return ResponseEntity.ok(orders);
 	}
 	
 	@GetMapping("/customer-orders-history/{customerId}")
 	public ResponseEntity<?> getCustomerordersHistory(@PathVariable Long customerId) {
-    try {
-        CustomerOrdersHistoryDTO ordersHistory = ordersService.getCustomerOrdersHistoryDTO(customerId);
-        return ResponseEntity.ok(ordersHistory);
-    } catch (MessageErrorException e) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-    }
-}}
+		try {
+			CustomerOrdersHistoryDTO ordersHistory = ordersService.getCustomerOrdersHistoryDTO(customerId);
+			return ResponseEntity.ok(ordersHistory);
+		} catch (MessageErrorException e) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+		}
+	}
+}

@@ -13,19 +13,19 @@ public class OrdersHistoryDTO {
     // private Double totalAmount;
 
     // Getters and Setters
-    public Long getordersId() {
+    public Long getOrdersId() {
         return ordersId;
     }
 
-    public void setordersId(Long ordersId) {
+    public void setOrdersId(Long ordersId) {
         this.ordersId = ordersId;
     }
 
-    public LocalDateTime getordersDate() {
+    public LocalDateTime getOrdersDate() {
         return ordersDate;
     }
 
-    public void setordersDate(LocalDateTime ordersDate) {
+    public void setOrdersDate(LocalDateTime ordersDate) {
         this.ordersDate = ordersDate;
     }
 
@@ -40,21 +40,21 @@ public class OrdersHistoryDTO {
     public List<OrdersItemSummaryDTO> getItems() {
         return items;
     }
+
     public void setItems(List<OrdersItemSummaryDTO> items) {
         this.items = items;
     }
-    
 
     // Default constructor
     public OrdersHistoryDTO() {
     }
 
-    public OrdersHistoryDTO(Long ordersId, LocalDateTime ordersDate, BigDecimal totalAmount, List<OrdersItemSummaryDTO> items) {
+    public OrdersHistoryDTO(Long ordersId, LocalDateTime ordersDate, BigDecimal totalAmount,
+            List<OrdersItemSummaryDTO> items) {
         this.ordersId = ordersId;
         this.ordersDate = ordersDate;
         this.totalAmount = totalAmount;
         this.items = items;
     }
 
-    
 }

@@ -25,52 +25,47 @@ import jakarta.transaction.Transactional;
 
 @Service
 public class OrdersService {
-	
+
 	@Autowired
-	private CustomerService customerService; 
-	@Autowired 
+	private CustomerService customerService;
+	@Autowired
 	private ProductService prodService;
 	@Autowired
 	private OrdersRepository ordersRepo;
 
-	
-
 	@Transactional
 	public Orders createOrders(OrdersDTO OrdersDTO) throws MessageErrorException {
-		
-		
-	    if (OrdersDTO.getordersItems() == null || OrdersDTO.getordersItems().isEmpty()) {
-	        throw new MessageErrorException("orders must contain at least one item.");
-	    }
 
-	    Customer customer = customerService.findCustomerByNameAndPhoneNum(
-	        OrdersDTO.getCustomer().getName(),
-	        OrdersDTO.getCustomer().getPhoneNum()
-	    );
+		if (OrdersDTO.getordersItems() == null || OrdersDTO.getordersItems().isEmpty()) {
+			throw new MessageErrorException("orders must contain at least one item.");
+		}
 
-	    Orders orders = new Orders();
-	    orders.setCustomer(customer);
-	    orders.setordersDate(LocalDateTime.now());
+		Customer customer = customerService.findCustomerByNameAndPhoneNum(
+				OrdersDTO.getCustomer().getName(),
+				OrdersDTO.getCustomer().getPhoneNum());
 
-	    for (OrdersItemDTO itemDTO : OrdersDTO.getordersItems()) {
-	        if (itemDTO.getQty() == null || itemDTO.getQty() <= 0) {
-	            throw new MessageErrorException("Invalid quantity for product");
-	        }
+		Orders orders = new Orders();
+		orders.setCustomer(customer);
+		orders.setordersDate(LocalDateTime.now());
 
-	        Product product = prodService.createProduct(itemDTO.getProductDTO());
+		for (OrdersItemDTO itemDTO : OrdersDTO.getordersItems()) {
+			if (itemDTO.getQty() == null || itemDTO.getQty() <= 0) {
+				throw new MessageErrorException("Invalid quantity for product");
+			}
 
-	        OrdersItem item = new OrdersItem();
-	        item.setProduct(product);
-	        item.setQty(itemDTO.getQty());
-	        item.setPrice(itemDTO.getPrice());
-	        item.setorders(orders); 
-	        
-	        
-	        orders.addItem(item); 
+			Product product = prodService.createProduct(itemDTO.getProductDTO());
+
+			OrdersItem item = new OrdersItem();
+			item.setProduct(product);
+			item.setQty(itemDTO.getQty());
+			item.setPrice(itemDTO.getPrice());
+			item.setorders(orders);
+
+			orders.addItem(item);
 		}
 
 		orders.calculateTotal();
-		return ordersRepo.save(orders); 
+		return ordersRepo.save(orders);
 	}
 
 	@Transactional
@@ -91,7 +86,7 @@ public class OrdersService {
 			OrdersItem item = new OrdersItem();
 			item.setProduct(product);
 			item.setQty(itemDTO.getQty());
-			item.setPrice(itemDTO.getPrice()); 
+			item.setPrice(itemDTO.getPrice());
 			item.setorders(orders);
 			orders.addItem(item);
 
@@ -101,16 +96,16 @@ public class OrdersService {
 
 		orders.calculateTotal();
 
-		Orders savedorders = ordersRepo.save(orders);
-		System.out.println("Saved orders ID: " + savedorders.getId());
-		System.out.println("Saved orders items count: " + savedorders.getItems().size());
-		return savedorders;
+		Orders savedOrders = ordersRepo.save(orders);
+		System.out.println("Saved orders ID: " + savedOrders.getId());
+		System.out.println("Saved orders items count: " + savedOrders.getItems().size());
+		return savedOrders;
 
 	}
 
 	public Orders getOrdersById(Long id) throws MessageErrorException {
 		return ordersRepo.findById(id)
-			.orElseThrow(() -> new MessageErrorException("orders not found" ));
+				.orElseThrow(() -> new MessageErrorException("orders not found"));
 	}
 
 	public List<Orders> getAllOrders() {
@@ -121,36 +116,31 @@ public class OrdersService {
 		return ordersRepo.findByCustomerId(customerId);
 	}
 
-	public CustomerOrdersHistoryDTO getCustomerOrdersHistoryDTO(Long customerId) throws MessageErrorException{
+	public CustomerOrdersHistoryDTO getCustomerOrdersHistoryDTO(Long customerId) throws MessageErrorException {
 
-		
 		Customer customer = customerService.getCustomerById(customerId);
 
-		
 		List<Orders> orders = ordersRepo.findByCustomerIdWithItemsAndProducts(customerId);
 
-		if(orders.isEmpty()){
+		if (orders.isEmpty()) {
 			throw new MessageErrorException("No orderss found for this customer");
 		}
 
-		
 		BigDecimal totalSpent = orders.stream()
-			.map(Orders::getTotalPrice)
-			.reduce(BigDecimal.ZERO, BigDecimal::add);
+				.map(Orders::getTotalPrice)
+				.reduce(BigDecimal.ZERO, BigDecimal::add);
 
-		
 		List<OrdersHistoryDTO> ordersHistory = orders.stream()
-        .map(this::convertToOrdersHistoryDTO)
-        .collect(Collectors.toList());
-    
+				.map(this::convertToOrdersHistoryDTO)
+				.collect(Collectors.toList());
+
 		return new CustomerOrdersHistoryDTO(
-			customerId,
-			customer.getName(),
-			customer.getPhoneNum(),
-			ordersHistory,
-			totalSpent,
-			orders.size()
-		);
+				customerId,
+				customer.getName(),
+				customer.getPhoneNum(),
+				ordersHistory,
+				totalSpent,
+				orders.size());
 	}
 
 	private OrdersHistoryDTO convertToOrdersHistoryDTO(Orders orders) {
@@ -182,10 +172,9 @@ public class OrdersService {
 				.collect(Collectors.toList());
 
 		return new OrdersHistoryDTO(
-			orders.getId(),
-			orders.getordersDate(),
-			orders.getTotalPrice(),
-			itemSummary
-		);
+				orders.getId(),
+				orders.getordersDate(),
+				orders.getTotalPrice(),
+				itemSummary);
 	}
 }

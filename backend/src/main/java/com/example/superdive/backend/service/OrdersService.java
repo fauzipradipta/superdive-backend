@@ -109,7 +109,7 @@ public class OrdersService {
 	}
 
 	public List<Orders> getAllOrders() {
-		return ordersRepo.findAll();
+		return ordersRepo.findAllOrdersWithCustomerAndItems();
 	}
 
 	public List<Orders> getOrdersByCustomerId(Long customerId) {

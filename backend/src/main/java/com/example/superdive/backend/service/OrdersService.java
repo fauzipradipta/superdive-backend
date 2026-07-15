@@ -104,7 +104,7 @@ public class OrdersService {
 	}
 
 	public Orders getOrdersById(Long id) throws MessageErrorException {
-		return ordersRepo.findById(id)
+		return ordersRepo.findByIdWithItemsAndProducts(id)
 				.orElseThrow(() -> new MessageErrorException("orders not found"));
 	}
 

@@ -6,18 +6,18 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class CustomerDTO {
-	
+
 	private Long id;
-	private String name; 
-	private String phoneNum; 
-	private Date dob; 
+	private String name;
+	private String phoneNum;
+	private Date dob;
 
 	@JsonProperty("isDiver")
 	private boolean diver;
-	
+
 	private List<DivingDataDTO> divingData;
 	private List<ReferenceDTO> reference;
-	
+
 	public Long getId() {
 		return id;
 	}
@@ -71,7 +71,7 @@ public class CustomerDTO {
 	public CustomerDTO() {
 		super();
 		// TODO Auto-generated constructor stub
-	} 
-	
-	
+	}
+
+
 }

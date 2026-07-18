@@ -23,10 +23,10 @@ import jakarta.transaction.Transactional;
 @Service
 @Transactional
 public class CustomerService {
-	
+
 	@Autowired
-	private final CustomerRepository customerRepository; 
-	
+	private final CustomerRepository customerRepository;
+
 	public CustomerService(CustomerRepository customerRepository) {
 		this.customerRepository = customerRepository;
 	}
@@ -46,7 +46,7 @@ public class CustomerService {
             dd.setCustomer(customer);
             return dd;
         }).collect(Collectors.toList());
-        
+
         List<Reference> refList = Optional.ofNullable(customerDTO.getReference())
 		.orElse(Collections.emptyList())
 		.stream()
@@ -58,21 +58,21 @@ public class CustomerService {
 			return ref;
 		})
     .collect(Collectors.toList());
-        
+
         customer.setDivingData(divingList);
         customer.setReferences(refList);
-        
+
     	List<Customer>existingCustomer = customerRepository.findByName(customerDTO.getName());
 		if(!existingCustomer.isEmpty()) {
 			throw new CustomerAlreadyExistException(customerDTO.getName() +"  Already Exist");
 		}
-		
+
 		return customerRepository.save(customer);
 	}
-	
+
 	//to find customer by name and phone number
 	public Customer findCustomerByNameAndPhoneNum(String name, String phoneNum) throws MessageErrorException {
-		
+
 		return customerRepository.findByNameAndPhoneNum(name, phoneNum)
 			   .stream()
 			   .findFirst()
@@ -82,18 +82,18 @@ public class CustomerService {
 		return customerRepository.findById(id)
 				.orElseThrow(() -> new RuntimeException("Customer not found"));
 	}
-	
-	
-	//get All Customer with pagination 
+
+
+	//get All Customer with pagination
 	public Page<Customer>getAllCustomerByPagination(Pageable pageable){
-		return customerRepository.findAll(pageable);				
+		return customerRepository.findAll(pageable);
 	}
-	
-	
+
+
 	public List<Customer> getAllCustomer(){
 		return customerRepository.findAll();
 	}
-	
+
 	public void deleteCustomer(Long id) {
 		customerRepository.deleteById(id);
 	}
@@ -102,12 +102,12 @@ public class CustomerService {
 	public Customer updateCustomer(Long id, CustomerDTO customerDTO) throws MessageErrorException {
 		Customer existingCustomer = customerRepository.findById(id)
 				.orElseThrow(() -> new RuntimeException("Customer not found"));
-	
+
 		existingCustomer.setName(customerDTO.getName());
 		existingCustomer.setPhoneNum(customerDTO.getPhoneNum());
 		existingCustomer.setDob(customerDTO.getDob());
 		existingCustomer.setDiver(customerDTO.getDiver());
-		
+
 		 existingCustomer.getDivingData().clear();
 		    Optional.ofNullable(customerDTO.getDivingData())
 		            .orElse(Collections.emptyList())

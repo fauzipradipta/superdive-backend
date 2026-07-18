@@ -31,14 +31,14 @@ import org.springframework.web.bind.annotation.PutMapping;
 @RequestMapping("/api")
 @CrossOrigin(origins ="http://localhost:3000")
 public class CustomerController {
-	
+
 	@Autowired
 	private final CustomerService customerService;
-	
+
 	public CustomerController(CustomerService customerService) {
         this.customerService = customerService;
     }
-	
+
 	@PostMapping(value = "/create-customer")
 	public ResponseEntity<?> createCustomer(@RequestBody CustomerDTO customerDTO) {
         try {
@@ -48,26 +48,26 @@ public class CustomerController {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
         }
     }
-	
+
 	@GetMapping(value="/customers/{id}")
 	public Customer getCustomerById(@PathVariable Long id ) {
 		return customerService.getCustomerById(id);
 	}
-	
+
 	@GetMapping(value="/all-customers-paged")
 	public ResponseEntity<Map<String,Object>> getAllCustomerPagination(
-		@RequestParam(defaultValue ="1") int page, 
+		@RequestParam(defaultValue ="1") int page,
 		@RequestParam(defaultValue ="50") int limit) {
 
-		
+
         Pageable pageable = PageRequest.of(page - 1, limit);
 
-       
+
         // If CustomerService.getAllCustomer() only returns List<Customer>, you need to modify it or do pagination here
         Page<Customer> customerPage = customerService.getAllCustomerByPagination(pageable);
 
         Map<String, Object> response = new HashMap<>();
-        response.put("data", customerPage.getContent()); 
+        response.put("data", customerPage.getContent());
         response.put("currentPage", customerPage.getNumber() + 1);
         response.put("totalItems", customerPage.getTotalElements());
         response.put("totalPages", customerPage.getTotalPages());

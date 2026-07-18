@@ -7,6 +7,7 @@ import java.util.List;
 
 import com.example.superdive.backend.config.CustomDateDeserializer;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -17,6 +18,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
@@ -44,7 +47,20 @@ public class Customer {
 	@JsonProperty("isDiver")
 	private boolean diver;
 
-	
+	// The user who created this customer record
+	@ManyToOne
+	@JoinColumn(name = "user_id")
+	@JsonIgnoreProperties({"password", "hibernateLazyInitializer", "handler"})
+	private User user;
+
+	public User getUser() {
+		return user;
+	}
+
+	public void setUser(User user) {
+		this.user = user;
+	}
+
 	public Long getId() {
 		return id;
 	}

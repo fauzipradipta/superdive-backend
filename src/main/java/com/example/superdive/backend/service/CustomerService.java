@@ -17,6 +17,7 @@ import com.example.superdive.backend.entity.Reference;
 import com.example.superdive.backend.exception.CustomerAlreadyExistException;
 import com.example.superdive.backend.exception.MessageErrorException;
 import com.example.superdive.backend.repository.CustomerRepository;
+import com.example.superdive.backend.security.AuthenticatedUserProvider;
 
 import jakarta.transaction.Transactional;
 
@@ -26,9 +27,12 @@ public class CustomerService {
 
 	@Autowired
 	private final CustomerRepository customerRepository;
+	private final AuthenticatedUserProvider authenticatedUserProvider;
 
-	public CustomerService(CustomerRepository customerRepository) {
+	public CustomerService(CustomerRepository customerRepository,
+			AuthenticatedUserProvider authenticatedUserProvider) {
 		this.customerRepository = customerRepository;
+		this.authenticatedUserProvider = authenticatedUserProvider;
 	}
 
 	public Customer createCustomer(CustomerDTO customerDTO) throws CustomerAlreadyExistException{
@@ -61,6 +65,7 @@ public class CustomerService {
 
         customer.setDivingData(divingList);
         customer.setReferences(refList);
+        customer.setUser(authenticatedUserProvider.getCurrentUser());
 
     	List<Customer>existingCustomer = customerRepository.findByName(customerDTO.getName());
 		if(!existingCustomer.isEmpty()) {

@@ -17,6 +17,9 @@ public interface OrdersRepository extends JpaRepository<Orders, Long> {
 
         List<Orders> findByCustomerId(Long customerId);
 
+        // Orders created by a specific user
+        List<Orders> findByUserId(Long userId);
+
         @Query("SELECT s FROM Orders s " +
                         "LEFT JOIN FETCH s.items i " +
                         "LEFT JOIN FETCH i.product p " +

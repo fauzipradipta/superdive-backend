@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import jakarta.persistence.CascadeType;
@@ -33,6 +34,12 @@ public class Orders {
 	@JoinColumn(name = "customer_id")
 	private Customer customer;
 
+	// The user who created this order record
+	@ManyToOne
+	@JoinColumn(name = "user_id")
+	@JsonIgnoreProperties({"password", "hibernateLazyInitializer", "handler"})
+	private User user;
+
 	@OneToMany(mappedBy="orders",cascade=CascadeType.ALL, orphanRemoval=true)
 	@JsonManagedReference
 	private List <OrdersItem> items = new ArrayList<>();
@@ -52,6 +59,12 @@ public class Orders {
 	}
 	public void setCustomer(Customer customer) {
 		this.customer = customer;
+	}
+	public User getUser() {
+		return user;
+	}
+	public void setUser(User user) {
+		this.user = user;
 	}
 	public List<OrdersItem> getItems() {
 		return items;

@@ -11,7 +11,10 @@ import com.example.superdive.backend.entity.Customer;
 @Repository
 public interface CustomerRepository extends JpaRepository< Customer,Long> {
 	List<Customer> findByName(String Name);
-	
+
 	List<Customer> findByNameAndPhoneNum(String name, String phoneNum);
+
+	// Customers created by a specific user
+	List<Customer> findByUserId(Long userId);
 }
  

@@ -1,5 +1,5 @@
 
-package main.java.com.example.superdive.backend.entity;
+package com.example.superdive.backend.entity;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;

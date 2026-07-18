@@ -20,6 +20,7 @@ import com.example.superdive.backend.entity.Product;
 import com.example.superdive.backend.entity.Orders;
 import com.example.superdive.backend.exception.MessageErrorException;
 import com.example.superdive.backend.repository.OrdersRepository;
+import com.example.superdive.backend.security.AuthenticatedUserProvider;
 
 import jakarta.transaction.Transactional;
 
@@ -32,6 +33,8 @@ public class OrdersService {
 	private ProductService prodService;
 	@Autowired
 	private OrdersRepository ordersRepo;
+	@Autowired
+	private AuthenticatedUserProvider authenticatedUserProvider;
 
 	@Transactional
 	public Orders createOrders(OrdersDTO OrdersDTO) throws MessageErrorException {
@@ -47,6 +50,7 @@ public class OrdersService {
 		Orders orders = new Orders();
 		orders.setCustomer(customer);
 		orders.setordersDate(LocalDateTime.now());
+		orders.setUser(authenticatedUserProvider.getCurrentUser());
 
 		for (OrdersItemDTO itemDTO : OrdersDTO.getordersItems()) {
 			if (itemDTO.getQty() == null || itemDTO.getQty() <= 0) {

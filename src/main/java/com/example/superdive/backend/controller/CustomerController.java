@@ -54,30 +54,21 @@ public class CustomerController {
 		return customerService.getCustomerById(id);
 	}
 
-	@GetMapping(value="/all-customers-paged")
-	public ResponseEntity<Map<String,Object>> getAllCustomerPagination(
-		@RequestParam(defaultValue ="1") int page,
-		@RequestParam(defaultValue ="50") int limit) {
-
-
-        Pageable pageable = PageRequest.of(page - 1, limit);
-
-
-        // If CustomerService.getAllCustomer() only returns List<Customer>, you need to modify it or do pagination here
-        Page<Customer> customerPage = customerService.getAllCustomerByPagination(pageable);
-
-        Map<String, Object> response = new HashMap<>();
-        response.put("data", customerPage.getContent());
-        response.put("currentPage", customerPage.getNumber() + 1);
-        response.put("totalItems", customerPage.getTotalElements());
-        response.put("totalPages", customerPage.getTotalPages());
-
-        return ResponseEntity.ok(response);
-
-	}
 	@GetMapping(value="/all-customer")
-	public List<Customer> getAllCustomerById(){
-		return customerService.getAllCustomer();
+	public ResponseEntity<Map<String,Object>> getAllCustomer(
+		@RequestParam(defaultValue = "1") int page,
+		@RequestParam(defaultValue = "50") int limit) {
+
+		Pageable pageable = PageRequest.of(page - 1, limit);
+		Page<Customer> customerPage = customerService.getAllCustomerByPagination(pageable);
+
+		Map<String, Object> response = new HashMap<>();
+		response.put("data", customerPage.getContent());
+		response.put("currentPage", customerPage.getNumber() + 1);
+		response.put("totalItems", customerPage.getTotalElements());
+		response.put("totalPages", customerPage.getTotalPages());
+
+		return ResponseEntity.ok(response);
 	}
 
     @PutMapping(value="/customers/update-customer/{id}")

@@ -36,8 +36,8 @@ public class OrdersController {
 	public ResponseEntity<?> createOrders(@RequestBody OrdersDTO ordersDTO) {
 
 		try {
-			ordersService.createOrders(ordersDTO);
-			return ResponseEntity.ok("orders successfully recorded");
+			Orders created = ordersService.createOrders(ordersDTO);
+			return new ResponseEntity<>(created, HttpStatus.CREATED);
 		} catch (MessageErrorException e) {
 			return ResponseEntity.badRequest().body("Error: " + e.getMessage());
 		}

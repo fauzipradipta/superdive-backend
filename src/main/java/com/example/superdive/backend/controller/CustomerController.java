@@ -50,8 +50,12 @@ public class CustomerController {
     }
 
 	@GetMapping(value="/customers/{id}")
-	public Customer getCustomerById(@PathVariable Long id ) {
-		return customerService.getCustomerById(id);
+	public ResponseEntity<Customer> getCustomerById(@PathVariable Long id ) {
+		Customer customer = customerService.getCustomerById(id);
+		if (customer == null) {
+			return ResponseEntity.notFound().build();
+		}
+		return ResponseEntity.ok(customer);
 	}
 
 	@GetMapping(value="/all-customer")

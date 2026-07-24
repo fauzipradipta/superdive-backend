@@ -12,14 +12,23 @@ import com.example.superdive.backend.entity.Orders;
 @Repository
 public interface OrdersRepository extends JpaRepository<Orders, Long> {
 
-        @Query("SELECT o FROM Orders o ORDER BY o.ordersDate DESC")
+        // Native: all orders, newest first.
+        @Query(value = "SELECT * FROM orders ORDER BY orders_date DESC", nativeQuery = true)
         List<Orders> findAllOrdersByDate();
 
-        List<Orders> findByCustomerId(Long customerId);
+        // Native: orders for one customer.
+        @Query(value = "SELECT * FROM orders WHERE customer_id = :customerId", nativeQuery = true)
+        List<Orders> findByCustomerId(@Param("customerId") Long customerId);
 
-        // Orders created by a specific user
-        List<Orders> findByUserId(Long userId);
+        // Native: orders created by a specific user.
+        @Query(value = "SELECT * FROM orders WHERE user_id = :userId", nativeQuery = true)
+        List<Orders> findByUserId(@Param("userId") Long userId);
 
+        // Kept as JPQL on purpose: native SQL cannot fetch-hydrate the @OneToMany
+        // `items` / `product` collections into the returned entity, and callers read
+        // those collections outside a transaction (see OrdersService). Converting
+        // these to native would leave the collections empty / throw
+        // LazyInitializationException.
         @Query("SELECT s FROM Orders s " +
                         "LEFT JOIN FETCH s.items i " +
                         "LEFT JOIN FETCH i.product p " +

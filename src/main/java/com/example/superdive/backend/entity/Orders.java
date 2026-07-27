@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.example.superdive.backend.enums.PaymentStatus;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
@@ -12,6 +13,8 @@ import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 //import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -44,9 +47,15 @@ public class Orders {
 	@JsonManagedReference
 	private List <OrdersItem> items = new ArrayList<>();
 
-	private BigDecimal totalPrice; 
+	private BigDecimal totalPrice;
 	@Column(name="orders_date")
 	private LocalDateTime ordersDate;
+
+	// Rows created before this column existed come back null — treated as UNPAID
+	// by the getter so the UI never has to special-case legacy orders.
+	@Enumerated(EnumType.STRING)
+	@Column(name="payment_status", length=20)
+	private PaymentStatus paymentStatus = PaymentStatus.UNPAID;
 
 	public Long getId() {
 		return id;
@@ -83,6 +92,12 @@ public class Orders {
 	}
 	public void setordersDate(LocalDateTime ordersDate) {
 		this.ordersDate = ordersDate;
+	}
+	public PaymentStatus getPaymentStatus() {
+		return paymentStatus == null ? PaymentStatus.UNPAID : paymentStatus;
+	}
+	public void setPaymentStatus(PaymentStatus paymentStatus) {
+		this.paymentStatus = paymentStatus;
 	}
 	public Orders(Long id, Customer customer, List<OrdersItem> items, BigDecimal totalPrice, LocalDateTime ordersDate) {
 		this.id = id;

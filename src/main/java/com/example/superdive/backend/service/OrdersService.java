@@ -18,6 +18,7 @@ import com.example.superdive.backend.entity.Customer;
 import com.example.superdive.backend.entity.OrdersItem;
 import com.example.superdive.backend.entity.Product;
 import com.example.superdive.backend.entity.Orders;
+import com.example.superdive.backend.enums.PaymentStatus;
 import com.example.superdive.backend.exception.MessageErrorException;
 import com.example.superdive.backend.repository.OrdersRepository;
 import com.example.superdive.backend.security.AuthenticatedUserProvider;
@@ -47,10 +48,21 @@ public class OrdersService {
 				OrdersDTO.getCustomer().getName(),
 				OrdersDTO.getCustomer().getPhoneNum());
 
+		// Optional on create; omitted or blank leaves the entity's UNPAID default.
+		PaymentStatus paymentStatus = PaymentStatus.UNPAID;
+		String requestedStatus = OrdersDTO.getPaymentStatus();
+		if (requestedStatus != null && !requestedStatus.isBlank()) {
+			paymentStatus = PaymentStatus.from(requestedStatus);
+			if (paymentStatus == null) {
+				throw new MessageErrorException("Unknown payment status: " + requestedStatus);
+			}
+		}
+
 		Orders orders = new Orders();
 		orders.setCustomer(customer);
 		orders.setordersDate(LocalDateTime.now());
 		orders.setUser(authenticatedUserProvider.getCurrentUser());
+		orders.setPaymentStatus(paymentStatus);
 
 		for (OrdersItemDTO itemDTO : OrdersDTO.getordersItems()) {
 			if (itemDTO.getQty() == null || itemDTO.getQty() <= 0) {
@@ -107,9 +119,25 @@ public class OrdersService {
 
 	}
 
+	/* Fetch-joins items/products/customer: the order preview reads those
+	 * collections after the transaction closes. */
 	public Orders getOrdersById(Long id) throws MessageErrorException {
-		return ordersRepo.findById(id)
-				.orElseThrow(() -> new MessageErrorException("orders not found"));
+		return ordersRepo.findByIdWithItemsAndProducts(id)
+				.orElseThrow(() -> new MessageErrorException("orders not found with id: " + id));
+	}
+
+	@Transactional
+	public Orders updatePaymentStatus(Long id, String paymentStatus) throws MessageErrorException {
+		PaymentStatus status = PaymentStatus.from(paymentStatus);
+		if (status == null) {
+			throw new MessageErrorException("Unknown payment status: " + paymentStatus);
+		}
+
+		Orders orders = ordersRepo.findByIdWithItemsAndProducts(id)
+				.orElseThrow(() -> new MessageErrorException("orders not found with id: " + id));
+
+		orders.setPaymentStatus(status);
+		return ordersRepo.save(orders);
 	}
 
 	public List<Orders> getAllOrders() {

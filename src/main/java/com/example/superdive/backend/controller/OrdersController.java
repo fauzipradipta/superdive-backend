@@ -70,7 +70,6 @@ public class OrdersController {
 		}
 	}
 
-	// Payment status is the one field the order preview lets the user change.
 	@PatchMapping("/orders/{id}/payment-status")
 	public ResponseEntity<?> updatePaymentStatus(@PathVariable Long id,
 			@RequestBody PaymentStatusRequestDTO request) {

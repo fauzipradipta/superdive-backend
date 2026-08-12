@@ -1,0 +1,51 @@
+# Brings up MySQL and the backend together.
+#   copy .env.example to .env, fill it in, then:  docker compose up --build
+#
+# The env vars below override the hardcoded values in application.properties —
+# Spring gives environment variables higher precedence than the properties file,
+# so nothing in src/ has to change.
+
+services:
+
+  mysql:
+    image: mysql:8.4
+    container_name: superdive-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: superdive
+    ports:
+      # Host 3307 so this does not collide with a MySQL already running on 3306.
+      # Bound to 127.0.0.1 on purpose: on a VPS a bare "3307:3306" would expose
+      # the database to the whole internet, and Docker's iptables rules bypass ufw.
+      - "127.0.0.1:3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-p${MYSQL_ROOT_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 40s
+
+  backend:
+    build: .
+    container_name: superdive-backend
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        # Without this the app starts before MySQL accepts connections and dies.
+        condition: service_healthy
+    environment:
+      # Host is "mysql" — the service name on the compose network. NOT localhost:
+      # inside a container localhost is the container itself.
+      SPRING_DATASOURCE_URL: "jdbc:mysql://mysql:3306/superdive?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC"
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRATION: ${JWT_EXPIRATION:-86400000}
+    ports:
+      - "8080:8080"
+
+volumes:
+  mysql_data:

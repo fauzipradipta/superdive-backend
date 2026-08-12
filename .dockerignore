@@ -1,0 +1,18 @@
+# Keep the build context small and stop host build output leaking into the image.
+target/
+.git/
+.gitattributes
+.gitignore
+
+# Local tooling / docs — nothing the build needs.
+.vscode/
+.settings/
+.classpath
+.project
+docs/
+*.md
+LICENSE
+Jenkinsfile
+
+# Secrets must come from the environment, never from the image.
+.env

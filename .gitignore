@@ -2,7 +2,10 @@ HELP.md
 target/
 
 ### Docker ###
+# Every filled-in env file is secret; only the template is committed.
 .env
+.env.*
+!.env.example
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/

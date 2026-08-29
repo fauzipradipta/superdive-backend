@@ -16,3 +16,4 @@ Jenkinsfile
 
 # Secrets must come from the environment, never from the image.
 .env
+.env.*

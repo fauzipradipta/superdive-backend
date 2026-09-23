@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -18,6 +19,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -44,7 +47,11 @@ import com.example.superdive.backend.enums.PaymentStatus;
 import com.example.superdive.backend.enums.ProductType;
 import com.example.superdive.backend.exception.MessageErrorException;
 import com.example.superdive.backend.repository.OrdersRepository;
+import com.example.superdive.backend.repository.ProductRepository;
 import com.example.superdive.backend.security.AuthenticatedUserProvider;
+import com.example.superdive.catalog.v1.Money;
+import com.example.superdive.catalog.v1.PricedLine;
+import com.example.superdive.catalog.v1.ResolvePricesResponse;
 
 @ExtendWith(MockitoExtension.class)
 class OrderServiceTest {
@@ -61,6 +68,9 @@ class OrderServiceTest {
     private OrdersRepository ordersRepo;
 
     @Mock
+    private ProductRepository productRepo;
+
+    @Mock
     private AuthenticatedUserProvider authenticatedUserProvider;
 
     @InjectMocks
@@ -68,18 +78,31 @@ class OrderServiceTest {
 
     private final AtomicLong productIdSequence = new AtomicLong(100);
 
+    /**
+     * Stands in for the catalog service's product table. Order lines now name a
+     * product by id instead of carrying a whole product to create, so the
+     * fixtures need somewhere for those ids to resolve to.
+     */
+    private final Map<Long, ProductDTO> catalog = new LinkedHashMap<>();
+
     // ---- fixtures ----
 
     private OrdersItemDTO itemDTO(String name, ProductType type, String price, Integer qty) {
+        long id = productIdSequence.incrementAndGet();
+
         ProductDTO productDTO = new ProductDTO();
+        productDTO.setId(id);
         productDTO.setName(name);
         productDTO.setType(type);
         productDTO.setDetails(name + " details");
         productDTO.setPrice(new BigDecimal(price));
+        catalog.put(id, productDTO);
 
         OrdersItemDTO dto = new OrdersItemDTO();
-        dto.setProductDTO(productDTO);
+        dto.setProductId(id);
         dto.setQty(qty);
+        // Still populated so the tests prove it is IGNORED: the price used is
+        // the one catalog returns, never the one the client sent.
         dto.setPrice(new BigDecimal(price));
         return dto;
     }
@@ -113,6 +136,17 @@ class OrderServiceTest {
         return product;
     }
 
+    /** The catalog view of a product entity, as ProductService now returns it. */
+    private ProductDTO dtoOf(Product product) {
+        ProductDTO dto = new ProductDTO();
+        dto.setId(product.getId());
+        dto.setName(product.getName());
+        dto.setType(product.getType());
+        dto.setDetails(product.getDetails());
+        dto.setPrice(product.getPrice());
+        return dto;
+    }
+
     private OrdersItem orderItem(Product product, Integer qty, String price) {
         OrdersItem item = new OrdersItem();
         item.setProduct(product);
@@ -132,12 +166,49 @@ class OrderServiceTest {
         return orders;
     }
 
-    /** createProduct is a real side effect in createOrders — echo back a saved Product. */
-    private void stubProductCreation() throws MessageErrorException {
-        when(prodService.createProduct(any(ProductDTO.class))).thenAnswer(invocation -> {
-            ProductDTO dto = invocation.getArgument(0);
-            return product(productIdSequence.incrementAndGet(), dto.getName(), dto.getType(),
-                    dto.getPrice().toPlainString());
+    private Money money(BigDecimal amount) {
+        BigDecimal scaled = amount.setScale(9, java.math.RoundingMode.HALF_UP);
+        long units = scaled.longValue();
+        int nanos = scaled.subtract(BigDecimal.valueOf(units)).movePointRight(9).intValueExact();
+        return Money.newBuilder().setCurrencyCode("IDR").setUnits(units).setNanos(nanos).build();
+    }
+
+    /**
+     * Catalog prices the basket. Replaces the old stubProductCreation(): orders
+     * no longer create a product per line, they resolve existing ones by id.
+     */
+    private void stubCatalogResolve() throws MessageErrorException {
+        when(prodService.resolvePrices(anyList())).thenAnswer(invocation -> {
+            List<OrdersItemDTO> lines = invocation.getArgument(0);
+            ResolvePricesResponse.Builder response = ResolvePricesResponse.newBuilder();
+            BigDecimal total = BigDecimal.ZERO;
+
+            for (OrdersItemDTO line : lines) {
+                ProductDTO p = catalog.get(line.getProductId());
+                if (p == null) {
+                    response.addMissingIds(line.getProductId());
+                    continue;
+                }
+                BigDecimal subtotal = p.getPrice().multiply(BigDecimal.valueOf(line.getQty()));
+                total = total.add(subtotal);
+                response.addLines(PricedLine.newBuilder()
+                        .setProductId(line.getProductId())
+                        .setName(p.getName())
+                        .setQty(line.getQty())
+                        .setUnitPrice(money(p.getPrice()))
+                        .setSubtotal(money(subtotal))
+                        .build());
+            }
+            return response.setTotal(money(total)).build();
+        });
+    }
+
+    /** The lazy FK proxy OrdersService attaches to each line. */
+    private void stubProductReferences() {
+        when(productRepo.getReferenceById(anyLong())).thenAnswer(invocation -> {
+            Long id = invocation.getArgument(0);
+            ProductDTO p = catalog.get(id);
+            return product(id, p.getName(), p.getType(), p.getPrice().toPlainString());
         });
     }
 
@@ -158,7 +229,8 @@ class OrderServiceTest {
 
         when(customerService.findCustomerByNameAndPhoneNum("John Doe", "1234567890")).thenReturn(customer);
         when(authenticatedUserProvider.getCurrentUser()).thenReturn(currentUser);
-        stubProductCreation();
+        stubCatalogResolve();
+        stubProductReferences();
         stubOrdersSaveEchoesArgument();
 
         Orders saved = ordersService.createOrders(request);
@@ -181,7 +253,8 @@ class OrderServiceTest {
 
         when(customerService.findCustomerByNameAndPhoneNum("John Doe", "1234567890")).thenReturn(customer(1L));
         when(authenticatedUserProvider.getCurrentUser()).thenReturn(new User());
-        stubProductCreation();
+        stubCatalogResolve();
+        stubProductReferences();
         stubOrdersSaveEchoesArgument();
 
         Orders saved = ordersService.createOrders(request);
@@ -196,7 +269,8 @@ class OrderServiceTest {
 
         when(customerService.findCustomerByNameAndPhoneNum("John Doe", "1234567890")).thenReturn(customer(1L));
         when(authenticatedUserProvider.getCurrentUser()).thenReturn(new User());
-        stubProductCreation();
+        stubCatalogResolve();
+        stubProductReferences();
         stubOrdersSaveEchoesArgument();
 
         Orders saved = ordersService.createOrders(request);
@@ -287,7 +361,8 @@ class OrderServiceTest {
 
         when(customerService.findCustomerByNameAndPhoneNum("John Doe", "1234567890")).thenReturn(customer(1L));
         when(authenticatedUserProvider.getCurrentUser()).thenReturn(new User());
-        stubProductCreation();
+        stubCatalogResolve();
+        stubProductReferences();
         stubOrdersSaveEchoesArgument();
 
         Orders returned = ordersService.createOrders(request);
@@ -295,6 +370,61 @@ class OrderServiceTest {
         ArgumentCaptor<Orders> captor = ArgumentCaptor.forClass(Orders.class);
         verify(ordersRepo).save(captor.capture());
         assertSame(returned, captor.getValue());
+    }
+
+    @Test
+    void createOrders_referencesExistingProductsInsteadOfCreatingThem() throws Exception {
+        OrdersDTO request = ordersDTO(itemDTO("Aqualung BCD", ProductType.Retail, "100.00", 2));
+
+        when(customerService.findCustomerByNameAndPhoneNum("John Doe", "1234567890"))
+                .thenReturn(customer(1L));
+        when(authenticatedUserProvider.getCurrentUser()).thenReturn(new User());
+        stubCatalogResolve();
+        stubProductReferences();
+        stubOrdersSaveEchoesArgument();
+
+        ordersService.createOrders(request);
+
+        // The regression this guards: createOrders used to INSERT a fresh
+        // product row for every order line.
+        verify(prodService, never()).createProduct(any(ProductDTO.class));
+    }
+
+    @Test
+    void createOrders_pricesFromCatalogAndIgnoresClientSuppliedPrice() throws Exception {
+        OrdersItemDTO tampered = itemDTO("Aqualung BCD", ProductType.Retail, "100.00", 2);
+        tampered.setPrice(new BigDecimal("0.01")); // what a hostile client might send
+
+        when(customerService.findCustomerByNameAndPhoneNum("John Doe", "1234567890"))
+                .thenReturn(customer(1L));
+        when(authenticatedUserProvider.getCurrentUser()).thenReturn(new User());
+        stubCatalogResolve();
+        stubProductReferences();
+        stubOrdersSaveEchoesArgument();
+
+        Orders saved = ordersService.createOrders(ordersDTO(tampered));
+
+        // Catalog's 100.00, not the 0.01 the client asked for.
+        assertEquals(new BigDecimal("100.00"), saved.getItems().get(0).getPrice());
+        assertEquals(new BigDecimal("200.00"), saved.getTotalPrice());
+    }
+
+    @Test
+    void createOrders_throwsWhenCatalogDoesNotKnowTheProduct() throws Exception {
+        OrdersItemDTO unknown = new OrdersItemDTO();
+        unknown.setProductId(4242L); // never registered in the catalog fixture
+        unknown.setQty(1);
+
+        when(customerService.findCustomerByNameAndPhoneNum("John Doe", "1234567890"))
+                .thenReturn(customer(1L));
+        when(authenticatedUserProvider.getCurrentUser()).thenReturn(new User());
+        stubCatalogResolve();
+
+        MessageErrorException thrown = assertThrows(MessageErrorException.class,
+                () -> ordersService.createOrders(ordersDTO(unknown)));
+
+        assertEquals("Unknown product ids: [4242]", thrown.getMessage());
+        verify(ordersRepo, never()).save(any(Orders.class));
     }
 
     // ---- addProductToOrders ----
@@ -311,7 +441,9 @@ class OrderServiceTest {
         itemDTO.setPrice(new BigDecimal("250.00"));
 
         when(ordersRepo.findByIdWithItemsAndProducts(10L)).thenReturn(Optional.of(existing));
-        when(prodService.getProductById(9L)).thenReturn(trip);
+        // Catalog confirms the product and supplies the price.
+        when(prodService.getProductById(9L)).thenReturn(dtoOf(trip));
+        when(productRepo.getReferenceById(9L)).thenReturn(trip);
         stubOrdersSaveEchoesArgument();
 
         Orders saved = ordersService.addProductToOrders(10L, itemDTO);
@@ -333,7 +465,7 @@ class OrderServiceTest {
         itemDTO.setPrice(new BigDecimal("999.99")); // ignored: the existing line keeps its price
 
         when(ordersRepo.findByIdWithItemsAndProducts(10L)).thenReturn(Optional.of(existing));
-        when(prodService.getProductById(5L)).thenReturn(bcd);
+        when(prodService.getProductById(5L)).thenReturn(dtoOf(bcd));
         stubOrdersSaveEchoesArgument();
 
         Orders saved = ordersService.addProductToOrders(10L, itemDTO);

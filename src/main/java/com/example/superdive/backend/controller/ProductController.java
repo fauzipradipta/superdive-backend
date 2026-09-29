@@ -1,50 +1,42 @@
 package com.example.superdive.backend.controller;
 
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.superdive.backend.dto.ProductDTO;
-import com.example.superdive.backend.dto.OrdersDTO;
-import com.example.superdive.backend.entity.Product;
-import com.example.superdive.backend.enums.ProductType;
+import com.example.superdive.backend.exception.MessageErrorException;
 import com.example.superdive.backend.service.ProductService;
 
 @RestController
 @RequestMapping("/api")
-
-
 public class ProductController {
+
 	@Autowired
 	private ProductService productService;
-	
+
 	public ProductController(ProductService productService) {
 		this.productService = productService;
 	}
-	
-	@GetMapping(value="/products")
-	public List<ProductDTO>postProduct(@RequestParam String type){
-		
-		return productService.getProductsByType(type).stream().map(p ->{
-			ProductDTO dto = new ProductDTO();
-			dto.setId(p.getId());
-			dto.setType(p.getType());
-			dto.setDetails(p.getDetails()); 
-			dto.setPrice(p.getPrice());
-			return dto;
-		}).collect(Collectors.toList());
+
+	@GetMapping(value = "/products")
+	public List<ProductDTO> postProduct(@RequestParam String type) throws MessageErrorException {
+		// Catalog already returns exactly these fields, so the hand-rolled
+		// entity-to-DTO copy that used to live here is gone.
+		return productService.getProductsByType(type);
 	}
 
-	
+	/*
+	 * Returns ProductDTO rather than the Product entity it used to serialise.
+	 * The backend no longer has a product entity to hand out, and the entity
+	 * form was leaking a `customer` association that was NULL on every row.
+	 */
 	@GetMapping("/all-products")
-	public List <Product> getAll(){
-		return productService.getAll(); 
+	public List<ProductDTO> getAll() throws MessageErrorException {
+		return productService.getAll();
 	}
 }

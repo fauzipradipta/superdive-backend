@@ -9,7 +9,6 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 @Entity
@@ -24,15 +23,6 @@ public class Product {
 	private ProductType type;
 	private String details;
 	private BigDecimal price;
-	@ManyToOne
-	private Customer customer;
-	
-	public Customer getCustomer() {
-		return customer;
-	}
-	public void setCustomer(Customer customer) {
-		this.customer = customer;
-	}
 	
 	
 	public Long getId() {
@@ -68,14 +58,13 @@ public class Product {
 	public void setPrice(BigDecimal price) {
 		this.price = price;
 	}
-	public Product(Long id,String name, ProductType type, String details, BigDecimal price, Customer customer) {
+	public Product(Long id,String name, ProductType type, String details, BigDecimal price) {
 		super();
 		this.id = id;
 		this.name = name;
 		this.type = type;
 		this.details = details;
 		this.price = price;
-		this.customer = customer;
 	}
 	public Product() {
 		super();

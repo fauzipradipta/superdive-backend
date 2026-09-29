@@ -19,12 +19,14 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import com.example.superdive.backend.dto.Request.ChangePasswordRequestDTO;
 import com.example.superdive.backend.dto.Request.LoginRequestDTO;
 import com.example.superdive.backend.dto.Request.UserRequestDTO;
 import com.example.superdive.backend.dto.Response.AuthResponseDTO;
 import com.example.superdive.backend.dto.Response.UserResponseDTO;
 import com.example.superdive.backend.entity.User;
 import com.example.superdive.backend.exception.InvalidCredentialException;
+import com.example.superdive.backend.exception.MessageErrorException;
 import com.example.superdive.backend.exception.UserAlreadyExistException;
 import com.example.superdive.backend.repository.UserRepository;
 import com.example.superdive.backend.security.CustomUserDetailsService;
@@ -174,5 +176,48 @@ class UserServiceTest {
 		assertThatThrownBy(() -> userService.login(request))
 				.isInstanceOf(InvalidCredentialException.class)
 				.hasMessageContaining("Invalid email or password");
+	}
+
+	// ---- changePassword (forgot password: email + new password) ----
+
+	private static final String EMAIL = "jane.doe@example.com";
+
+	private User storedUser(String hash) {
+		User user = new User();
+		user.setId(1L);
+		user.setEmail(EMAIL);
+		user.setPassword(hash);
+		when(userRepository.findByEmail(EMAIL)).thenReturn(Optional.of(user));
+		return user;
+	}
+
+	@Test
+	void changePassword_storesNewHash_whenEmailRegistered() throws Exception {
+		User user = storedUser("oldHash");
+		when(passwordEncoder.encode("new")).thenReturn("newHash");
+
+		userService.changePassword(new ChangePasswordRequestDTO(" " + EMAIL + " ", "new"));
+
+		assertThat(user.getPassword()).isEqualTo("newHash");
+		verify(userRepository).save(user);
+	}
+
+	@Test
+	void changePassword_throws_whenEmailUnknown() {
+		when(userRepository.findByEmail("nobody@example.com")).thenReturn(Optional.empty());
+
+		assertThatThrownBy(() -> userService.changePassword(
+				new ChangePasswordRequestDTO("nobody@example.com", "newPassword1")))
+				.isInstanceOf(InvalidCredentialException.class);
+		verify(userRepository, never()).save(any());
+	}
+
+	@Test
+	void changePassword_throws_whenNewPasswordEmpty() {
+		storedUser("oldHash");
+
+		assertThatThrownBy(() -> userService.changePassword(new ChangePasswordRequestDTO(EMAIL, "")))
+				.isInstanceOf(MessageErrorException.class);
+		verify(userRepository, never()).save(any());
 	}
 }

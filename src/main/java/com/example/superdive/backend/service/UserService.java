@@ -4,12 +4,14 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.example.superdive.backend.dto.Request.ChangePasswordRequestDTO;
 import com.example.superdive.backend.dto.Request.LoginRequestDTO;
 import com.example.superdive.backend.dto.Request.UserRequestDTO;
 import com.example.superdive.backend.dto.Response.AuthResponseDTO;
 import com.example.superdive.backend.dto.Response.UserResponseDTO;
 import com.example.superdive.backend.entity.User;
 import com.example.superdive.backend.exception.InvalidCredentialException;
+import com.example.superdive.backend.exception.MessageErrorException;
 import com.example.superdive.backend.exception.UserAlreadyExistException;
 import com.example.superdive.backend.repository.UserRepository;
 import com.example.superdive.backend.security.CustomUserDetailsService;
@@ -65,6 +67,25 @@ public class UserService {
 				.type("Bearer")
 				.user(toResponse(user))
 				.build();
+	}
+
+	/*
+	 * Forgot password: email + new password, no login token and no current
+	 * password. WARNING: nothing proves the caller owns the email, so anyone
+	 * who knows a user's email can set that user's password.
+	 */
+	public void changePassword(ChangePasswordRequestDTO request)
+			throws InvalidCredentialException, MessageErrorException {
+		User user = userRepository.findByEmail(request.getEmail() == null ? "" : request.getEmail().trim())
+				.orElseThrow(() -> new InvalidCredentialException("No account found for that email"));
+
+		String newPassword = request.getNewPassword();
+		if (newPassword == null || newPassword.isEmpty()) {
+			throw new MessageErrorException("New password is required");
+		}
+
+		user.setPassword(passwordEncoder.encode(newPassword));
+		userRepository.save(user);
 	}
 
 	private UserResponseDTO toResponse(User user) {

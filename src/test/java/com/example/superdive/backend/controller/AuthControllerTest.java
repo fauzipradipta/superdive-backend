@@ -1,6 +1,8 @@
 package com.example.superdive.backend.controller;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -16,6 +18,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import com.example.superdive.backend.dto.Request.ChangePasswordRequestDTO;
 import com.example.superdive.backend.dto.Request.LoginRequestDTO;
 import com.example.superdive.backend.dto.Request.UserRequestDTO;
 import com.example.superdive.backend.dto.Response.AuthResponseDTO;
@@ -127,5 +130,34 @@ class AuthControllerTest {
 				.content(objectMapper.writeValueAsString(request)))
 				.andExpect(status().isUnauthorized())
 				.andExpect(content().string("Invalid email or password"));
+	}
+
+	// ---- /api/auth/change-password ----
+
+	@Test
+	void changePassword_returns200_onSuccess() throws Exception {
+		ChangePasswordRequestDTO request =
+				new ChangePasswordRequestDTO("jane.doe@example.com", "newPassword1");
+
+		mockMvc.perform(post("/api/auth/change-password")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(request)))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.message").exists());
+
+		verify(userService).changePassword(request);
+	}
+
+	@Test
+	void changePassword_returns400WithMessage_whenEmailUnknown() throws Exception {
+		doThrow(new InvalidCredentialException("Email or current password is incorrect"))
+				.when(userService).changePassword(any(ChangePasswordRequestDTO.class));
+
+		mockMvc.perform(post("/api/auth/change-password")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(
+						new ChangePasswordRequestDTO("nobody@example.com", "newPassword1"))))
+				.andExpect(status().isBadRequest())
+				.andExpect(jsonPath("$.message").value("Email or current password is incorrect"));
 	}
 }

@@ -14,6 +14,7 @@ import com.example.superdive.backend.dto.OrdersHistoryDTO;
 import com.example.superdive.backend.dto.OrdersItemDTO;
 import com.example.superdive.backend.dto.OrdersItemSummaryDTO;
 import com.example.superdive.backend.dto.OrdersDTO;
+import com.example.superdive.backend.dto.ProductDTO;
 import com.example.superdive.backend.entity.Customer;
 import com.example.superdive.backend.entity.OrdersItem;
 import com.example.superdive.backend.entity.Product;
@@ -21,7 +22,10 @@ import com.example.superdive.backend.entity.Orders;
 import com.example.superdive.backend.enums.PaymentStatus;
 import com.example.superdive.backend.exception.MessageErrorException;
 import com.example.superdive.backend.repository.OrdersRepository;
+import com.example.superdive.backend.repository.ProductRepository;
 import com.example.superdive.backend.security.AuthenticatedUserProvider;
+import com.example.superdive.catalog.v1.PricedLine;
+import com.example.superdive.catalog.v1.ResolvePricesResponse;
 
 import jakarta.transaction.Transactional;
 
@@ -34,6 +38,13 @@ public class OrdersService {
 	private ProductService prodService;
 	@Autowired
 	private OrdersRepository ordersRepo;
+	/*
+	 * Used only to obtain lazy FK references for the OrdersItem association.
+	 * Product data itself is read from the catalog service over gRPC; this
+	 * repository is deliberately never used to read or write product columns.
+	 */
+	@Autowired
+	private ProductRepository productRepo;
 	@Autowired
 	private AuthenticatedUserProvider authenticatedUserProvider;
 
@@ -68,13 +79,32 @@ public class OrdersService {
 			if (itemDTO.getQty() == null || itemDTO.getQty() <= 0) {
 				throw new MessageErrorException("Invalid quantity for product");
 			}
+			if (itemDTO.getProductId() == null) {
+				throw new MessageErrorException("Product id is required for every order line");
+			}
+		}
 
-			Product product = prodService.createProduct(itemDTO.getProductDTO());
+		/*
+		 * Resolve every line against the catalog in one call.
+		 *
+		 * This previously called prodService.createProduct() per line, which
+		 * INSERTed a brand-new product row for each item on each order rather
+		 * than referencing the product being sold. Prices now come back from
+		 * the catalog, so an order cannot be booked at a client-chosen price.
+		 */
+		ResolvePricesResponse priced = prodService.resolvePrices(OrdersDTO.getordersItems());
 
+		if (!priced.getMissingIdsList().isEmpty()) {
+			throw new MessageErrorException("Unknown product ids: " + priced.getMissingIdsList());
+		}
+
+		for (PricedLine line : priced.getLinesList()) {
 			OrdersItem item = new OrdersItem();
-			item.setProduct(product);
-			item.setQty(itemDTO.getQty());
-			item.setPrice(itemDTO.getPrice());
+			// getReferenceById yields a lazy FK proxy: it establishes the
+			// association without reading product columns back through JPA.
+			item.setProduct(productRepo.getReferenceById(line.getProductId()));
+			item.setQty(line.getQty());
+			item.setPrice(CatalogMapper.toBigDecimal(line.getUnitPrice()));
 			item.setorders(orders);
 
 			orders.addItem(item);
@@ -89,7 +119,13 @@ public class OrdersService {
 		Orders orders = ordersRepo.findByIdWithItemsAndProducts(ordersId)
 				.orElseThrow(() -> new MessageErrorException("orders not found with id: " + ordersId));
 
-		Product product = prodService.getProductById(itemDTO.getProductId());
+		if (itemDTO.getQty() == null || itemDTO.getQty() <= 0) {
+			throw new MessageErrorException("Invalid quantity for product");
+		}
+
+		// Confirms the product exists and yields the catalog's own current
+		// price. A NOT_FOUND from catalog surfaces as MessageErrorException.
+		ProductDTO product = prodService.getProductById(itemDTO.getProductId());
 
 		Optional<OrdersItem> existingItem = orders.getItems().stream()
 				.filter(item -> item.getProduct().getId().equals(product.getId()))
@@ -100,9 +136,9 @@ public class OrdersService {
 			item.setQty(item.getQty() + itemDTO.getQty());
 		} else {
 			OrdersItem item = new OrdersItem();
-			item.setProduct(product);
+			item.setProduct(productRepo.getReferenceById(product.getId()));
 			item.setQty(itemDTO.getQty());
-			item.setPrice(itemDTO.getPrice());
+			item.setPrice(product.getPrice());
 			item.setorders(orders);
 			orders.addItem(item);
 

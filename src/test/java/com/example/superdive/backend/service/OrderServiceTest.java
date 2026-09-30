@@ -37,6 +37,7 @@ import com.example.superdive.backend.dto.OrdersDTO;
 import com.example.superdive.backend.dto.OrdersHistoryDTO;
 import com.example.superdive.backend.dto.OrdersItemDTO;
 import com.example.superdive.backend.dto.OrdersItemSummaryDTO;
+import com.example.superdive.backend.dto.PricedLineDTO;
 import com.example.superdive.backend.dto.ProductDTO;
 import com.example.superdive.backend.entity.Customer;
 import com.example.superdive.backend.entity.Orders;
@@ -49,9 +50,6 @@ import com.example.superdive.backend.exception.MessageErrorException;
 import com.example.superdive.backend.repository.OrdersRepository;
 import com.example.superdive.backend.repository.ProductRepository;
 import com.example.superdive.backend.security.AuthenticatedUserProvider;
-import com.example.superdive.catalog.v1.Money;
-import com.example.superdive.catalog.v1.PricedLine;
-import com.example.superdive.catalog.v1.ResolvePricesResponse;
 
 @ExtendWith(MockitoExtension.class)
 class OrderServiceTest {
@@ -79,11 +77,11 @@ class OrderServiceTest {
     private final AtomicLong productIdSequence = new AtomicLong(100);
 
     /**
-     * Stands in for the catalog service's product table. Order lines now name a
-     * product by id instead of carrying a whole product to create, so the
-     * fixtures need somewhere for those ids to resolve to.
+     * Stands in for the `product` table. Order lines name a product by id
+     * instead of carrying a whole product to create, so the fixtures need
+     * somewhere for those ids to resolve to.
      */
-    private final Map<Long, ProductDTO> catalog = new LinkedHashMap<>();
+    private final Map<Long, ProductDTO> storedProducts = new LinkedHashMap<>();
 
     // ---- fixtures ----
 
@@ -96,13 +94,13 @@ class OrderServiceTest {
         productDTO.setType(type);
         productDTO.setDetails(name + " details");
         productDTO.setPrice(new BigDecimal(price));
-        catalog.put(id, productDTO);
+        storedProducts.put(id, productDTO);
 
         OrdersItemDTO dto = new OrdersItemDTO();
         dto.setProductId(id);
         dto.setQty(qty);
         // Still populated so the tests prove it is IGNORED: the price used is
-        // the one catalog returns, never the one the client sent.
+        // the stored one, never the one the client sent.
         dto.setPrice(new BigDecimal(price));
         return dto;
     }
@@ -136,7 +134,7 @@ class OrderServiceTest {
         return product;
     }
 
-    /** The catalog view of a product entity, as ProductService now returns it. */
+    /** The DTO view of a product entity, as ProductService returns it. */
     private ProductDTO dtoOf(Product product) {
         ProductDTO dto = new ProductDTO();
         dto.setId(product.getId());
@@ -166,40 +164,32 @@ class OrderServiceTest {
         return orders;
     }
 
-    private Money money(BigDecimal amount) {
-        BigDecimal scaled = amount.setScale(9, java.math.RoundingMode.HALF_UP);
-        long units = scaled.longValue();
-        int nanos = scaled.subtract(BigDecimal.valueOf(units)).movePointRight(9).intValueExact();
-        return Money.newBuilder().setCurrencyCode("IDR").setUnits(units).setNanos(nanos).build();
-    }
-
     /**
-     * Catalog prices the basket. Replaces the old stubProductCreation(): orders
-     * no longer create a product per line, they resolve existing ones by id.
+     * ProductService prices the basket from the stored products. Replaces the
+     * old stubProductCreation(): orders no longer create a product per line,
+     * they resolve existing ones by id.
      */
-    private void stubCatalogResolve() throws MessageErrorException {
+    private void stubPriceResolution() throws MessageErrorException {
         when(prodService.resolvePrices(anyList())).thenAnswer(invocation -> {
             List<OrdersItemDTO> lines = invocation.getArgument(0);
-            ResolvePricesResponse.Builder response = ResolvePricesResponse.newBuilder();
-            BigDecimal total = BigDecimal.ZERO;
+            List<PricedLineDTO> priced = new ArrayList<>();
+            List<Long> missingIds = new ArrayList<>();
 
             for (OrdersItemDTO line : lines) {
-                ProductDTO p = catalog.get(line.getProductId());
+                ProductDTO p = storedProducts.get(line.getProductId());
                 if (p == null) {
-                    response.addMissingIds(line.getProductId());
+                    missingIds.add(line.getProductId());
                     continue;
                 }
-                BigDecimal subtotal = p.getPrice().multiply(BigDecimal.valueOf(line.getQty()));
-                total = total.add(subtotal);
-                response.addLines(PricedLine.newBuilder()
-                        .setProductId(line.getProductId())
-                        .setName(p.getName())
-                        .setQty(line.getQty())
-                        .setUnitPrice(money(p.getPrice()))
-                        .setSubtotal(money(subtotal))
-                        .build());
+                priced.add(new PricedLineDTO(line.getProductId(), line.getQty(), p.getPrice()));
             }
-            return response.setTotal(money(total)).build();
+
+            // Mirrors the real method: unknown ids are collected, then thrown
+            // as one message rather than returned to the caller.
+            if (!missingIds.isEmpty()) {
+                throw new MessageErrorException("Unknown product ids: " + missingIds);
+            }
+            return priced;
         });
     }
 
@@ -207,7 +197,7 @@ class OrderServiceTest {
     private void stubProductReferences() {
         when(productRepo.getReferenceById(anyLong())).thenAnswer(invocation -> {
             Long id = invocation.getArgument(0);
-            ProductDTO p = catalog.get(id);
+            ProductDTO p = storedProducts.get(id);
             return product(id, p.getName(), p.getType(), p.getPrice().toPlainString());
         });
     }
@@ -229,7 +219,7 @@ class OrderServiceTest {
 
         when(customerService.findCustomerByNameAndPhoneNum("John Doe", "1234567890")).thenReturn(customer);
         when(authenticatedUserProvider.getCurrentUser()).thenReturn(currentUser);
-        stubCatalogResolve();
+        stubPriceResolution();
         stubProductReferences();
         stubOrdersSaveEchoesArgument();
 
@@ -253,7 +243,7 @@ class OrderServiceTest {
 
         when(customerService.findCustomerByNameAndPhoneNum("John Doe", "1234567890")).thenReturn(customer(1L));
         when(authenticatedUserProvider.getCurrentUser()).thenReturn(new User());
-        stubCatalogResolve();
+        stubPriceResolution();
         stubProductReferences();
         stubOrdersSaveEchoesArgument();
 
@@ -269,7 +259,7 @@ class OrderServiceTest {
 
         when(customerService.findCustomerByNameAndPhoneNum("John Doe", "1234567890")).thenReturn(customer(1L));
         when(authenticatedUserProvider.getCurrentUser()).thenReturn(new User());
-        stubCatalogResolve();
+        stubPriceResolution();
         stubProductReferences();
         stubOrdersSaveEchoesArgument();
 
@@ -361,7 +351,7 @@ class OrderServiceTest {
 
         when(customerService.findCustomerByNameAndPhoneNum("John Doe", "1234567890")).thenReturn(customer(1L));
         when(authenticatedUserProvider.getCurrentUser()).thenReturn(new User());
-        stubCatalogResolve();
+        stubPriceResolution();
         stubProductReferences();
         stubOrdersSaveEchoesArgument();
 
@@ -379,7 +369,7 @@ class OrderServiceTest {
         when(customerService.findCustomerByNameAndPhoneNum("John Doe", "1234567890"))
                 .thenReturn(customer(1L));
         when(authenticatedUserProvider.getCurrentUser()).thenReturn(new User());
-        stubCatalogResolve();
+        stubPriceResolution();
         stubProductReferences();
         stubOrdersSaveEchoesArgument();
 
@@ -391,34 +381,34 @@ class OrderServiceTest {
     }
 
     @Test
-    void createOrders_pricesFromCatalogAndIgnoresClientSuppliedPrice() throws Exception {
+    void createOrders_pricesFromStoredProductAndIgnoresClientSuppliedPrice() throws Exception {
         OrdersItemDTO tampered = itemDTO("Aqualung BCD", ProductType.Retail, "100.00", 2);
         tampered.setPrice(new BigDecimal("0.01")); // what a hostile client might send
 
         when(customerService.findCustomerByNameAndPhoneNum("John Doe", "1234567890"))
                 .thenReturn(customer(1L));
         when(authenticatedUserProvider.getCurrentUser()).thenReturn(new User());
-        stubCatalogResolve();
+        stubPriceResolution();
         stubProductReferences();
         stubOrdersSaveEchoesArgument();
 
         Orders saved = ordersService.createOrders(ordersDTO(tampered));
 
-        // Catalog's 100.00, not the 0.01 the client asked for.
+        // The stored 100.00, not the 0.01 the client asked for.
         assertEquals(new BigDecimal("100.00"), saved.getItems().get(0).getPrice());
         assertEquals(new BigDecimal("200.00"), saved.getTotalPrice());
     }
 
     @Test
-    void createOrders_throwsWhenCatalogDoesNotKnowTheProduct() throws Exception {
+    void createOrders_throwsWhenProductDoesNotExist() throws Exception {
         OrdersItemDTO unknown = new OrdersItemDTO();
-        unknown.setProductId(4242L); // never registered in the catalog fixture
+        unknown.setProductId(4242L); // never registered in the fixture
         unknown.setQty(1);
 
         when(customerService.findCustomerByNameAndPhoneNum("John Doe", "1234567890"))
                 .thenReturn(customer(1L));
         when(authenticatedUserProvider.getCurrentUser()).thenReturn(new User());
-        stubCatalogResolve();
+        stubPriceResolution();
 
         MessageErrorException thrown = assertThrows(MessageErrorException.class,
                 () -> ordersService.createOrders(ordersDTO(unknown)));
@@ -441,7 +431,7 @@ class OrderServiceTest {
         itemDTO.setPrice(new BigDecimal("250.00"));
 
         when(ordersRepo.findByIdWithItemsAndProducts(10L)).thenReturn(Optional.of(existing));
-        // Catalog confirms the product and supplies the price.
+        // ProductService confirms the product exists and supplies the price.
         when(prodService.getProductById(9L)).thenReturn(dtoOf(trip));
         when(productRepo.getReferenceById(9L)).thenReturn(trip);
         stubOrdersSaveEchoesArgument();
@@ -474,6 +464,25 @@ class OrderServiceTest {
         assertEquals(5, saved.getItems().get(0).getQty().intValue());
         assertEquals(new BigDecimal("100.00"), saved.getItems().get(0).getPrice());
         assertEquals(new BigDecimal("500.00"), saved.getTotalPrice());
+    }
+
+    @Test
+    void addProductToOrders_throwsWhenProductIdMissing() throws Exception {
+        Orders existing = persistedOrders(10L);
+
+        OrdersItemDTO itemDTO = new OrdersItemDTO();
+        itemDTO.setQty(1); // productId left null
+
+        when(ordersRepo.findByIdWithItemsAndProducts(10L)).thenReturn(Optional.of(existing));
+
+        MessageErrorException thrown = assertThrows(MessageErrorException.class,
+                () -> ordersService.addProductToOrders(10L, itemDTO));
+
+        assertEquals("Product id is required", thrown.getMessage());
+        // The regression this guards: a body without productId used to reach
+        // findById(null) and come back as a 500.
+        verify(prodService, never()).getProductById(anyLong());
+        verify(ordersRepo, never()).save(any(Orders.class));
     }
 
     @Test

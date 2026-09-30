@@ -14,6 +14,7 @@ import com.example.superdive.backend.dto.OrdersHistoryDTO;
 import com.example.superdive.backend.dto.OrdersItemDTO;
 import com.example.superdive.backend.dto.OrdersItemSummaryDTO;
 import com.example.superdive.backend.dto.OrdersDTO;
+import com.example.superdive.backend.dto.PricedLineDTO;
 import com.example.superdive.backend.dto.ProductDTO;
 import com.example.superdive.backend.entity.Customer;
 import com.example.superdive.backend.entity.OrdersItem;
@@ -24,8 +25,6 @@ import com.example.superdive.backend.exception.MessageErrorException;
 import com.example.superdive.backend.repository.OrdersRepository;
 import com.example.superdive.backend.repository.ProductRepository;
 import com.example.superdive.backend.security.AuthenticatedUserProvider;
-import com.example.superdive.catalog.v1.PricedLine;
-import com.example.superdive.catalog.v1.ResolvePricesResponse;
 
 import jakarta.transaction.Transactional;
 
@@ -40,8 +39,7 @@ public class OrdersService {
 	private OrdersRepository ordersRepo;
 	/*
 	 * Used only to obtain lazy FK references for the OrdersItem association.
-	 * Product data itself is read from the catalog service over gRPC; this
-	 * repository is deliberately never used to read or write product columns.
+	 * Product data itself is read through ProductService, which returns DTOs.
 	 */
 	@Autowired
 	private ProductRepository productRepo;
@@ -85,26 +83,23 @@ public class OrdersService {
 		}
 
 		/*
-		 * Resolve every line against the catalog in one call.
+		 * Price every line from the product table in one query.
 		 *
 		 * This previously called prodService.createProduct() per line, which
 		 * INSERTed a brand-new product row for each item on each order rather
-		 * than referencing the product being sold. Prices now come back from
-		 * the catalog, so an order cannot be booked at a client-chosen price.
+		 * than referencing the product being sold. Prices are read server-side,
+		 * so an order cannot be booked at a client-chosen price. An unknown
+		 * product id throws out of resolvePrices before anything is saved.
 		 */
-		ResolvePricesResponse priced = prodService.resolvePrices(OrdersDTO.getordersItems());
+		List<PricedLineDTO> priced = prodService.resolvePrices(OrdersDTO.getordersItems());
 
-		if (!priced.getMissingIdsList().isEmpty()) {
-			throw new MessageErrorException("Unknown product ids: " + priced.getMissingIdsList());
-		}
-
-		for (PricedLine line : priced.getLinesList()) {
+		for (PricedLineDTO line : priced) {
 			OrdersItem item = new OrdersItem();
 			// getReferenceById yields a lazy FK proxy: it establishes the
-			// association without reading product columns back through JPA.
-			item.setProduct(productRepo.getReferenceById(line.getProductId()));
-			item.setQty(line.getQty());
-			item.setPrice(CatalogMapper.toBigDecimal(line.getUnitPrice()));
+			// association without a second read of the product row.
+			item.setProduct(productRepo.getReferenceById(line.productId()));
+			item.setQty(line.qty());
+			item.setPrice(line.unitPrice());
 			item.setorders(orders);
 
 			orders.addItem(item);
@@ -122,9 +117,14 @@ public class OrdersService {
 		if (itemDTO.getQty() == null || itemDTO.getQty() <= 0) {
 			throw new MessageErrorException("Invalid quantity for product");
 		}
+		// Without this a body missing productId reaches findById(null), which
+		// surfaces as a 500 rather than a message the caller can act on.
+		if (itemDTO.getProductId() == null) {
+			throw new MessageErrorException("Product id is required");
+		}
 
-		// Confirms the product exists and yields the catalog's own current
-		// price. A NOT_FOUND from catalog surfaces as MessageErrorException.
+		// Confirms the product exists and yields its current stored price
+		// rather than whatever price the request carried.
 		ProductDTO product = prodService.getProductById(itemDTO.getProductId());
 
 		Optional<OrdersItem> existingItem = orders.getItems().stream()

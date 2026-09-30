@@ -25,18 +25,18 @@ public class ProductController {
 
 	@GetMapping(value = "/products")
 	public List<ProductDTO> postProduct(@RequestParam String type) throws MessageErrorException {
-		// Catalog already returns exactly these fields, so the hand-rolled
-		// entity-to-DTO copy that used to live here is gone.
+		// ProductService already returns exactly these fields, so the
+		// hand-rolled entity-to-DTO copy that used to live here is gone.
 		return productService.getProductsByType(type);
 	}
 
 	/*
-	 * Returns ProductDTO rather than the Product entity it used to serialise.
-	 * The backend no longer has a product entity to hand out, and the entity
-	 * form was leaking a `customer` association that was NULL on every row.
+	 * Returns ProductDTO rather than the Product entity it used to serialise:
+	 * the entity form was leaking a `customer` association that was NULL on
+	 * every row.
 	 */
 	@GetMapping("/all-products")
-	public List<ProductDTO> getAll() throws MessageErrorException {
+	public List<ProductDTO> getAll() {
 		return productService.getAll();
 	}
 }

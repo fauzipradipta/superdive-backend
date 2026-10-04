@@ -14,6 +14,12 @@ RUN chmod +x mvnw && ./mvnw -B -ntp dependency:go-offline
 
 COPY src/ src/
 
+# pom.xml compiles the catalog stubs from ../gRPC-projects/src/main/proto, which
+# is outside this build context. docker-compose.yml passes the catalog repo in as
+# the extra "catalog" context, so this image needs `docker compose build` -
+# a bare `docker build .` has no catalog context and fails here.
+COPY --from=catalog src/main/proto/ /gRPC-projects/src/main/proto/
+
 # Tests are skipped on purpose: BackendApplicationTests is a @SpringBootTest that
 # needs a live MySQL, which does not exist during an image build. The Jenkins
 # pipeline runs the suite before this image is ever built.

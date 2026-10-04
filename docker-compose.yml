@@ -14,6 +14,15 @@
 
 name: ${COMPOSE_PROJECT_NAME:-superdive}
 
+# Both apps use the same database: catalog owns the `product` table, and the
+# backend's orders_item.product_id foreign key references those same rows.
+# Host is "mysql" - the service name on this project's compose network. NOT
+# localhost: inside a container localhost is the container itself.
+x-db-env: &db-env
+  DB_URL: "jdbc:mysql://mysql:3306/${MYSQL_DATABASE:-superdive}?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC"
+  DB_USERNAME: root
+  DB_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+
 services:
 
   mysql:
@@ -36,23 +45,40 @@ services:
       retries: 12
       start_period: 40s
 
+  # superdive-catalog gRPC service, built from the gRPC-projects repo.
+  catalog:
+    build: ${CATALOG_SRC:-../gRPC-projects}
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      <<: *db-env
+    # No ports: published. Only the backend talks to it, over the compose network.
+
   backend:
-    build: .
+    build:
+      context: .
+      # pom.xml generates the gRPC client stubs from the catalog's own .proto,
+      # so the image build needs the catalog repo too. See the Dockerfile.
+      additional_contexts:
+        catalog: ${CATALOG_SRC:-../gRPC-projects}
     restart: unless-stopped
     depends_on:
       mysql:
         # Without this the app starts before MySQL accepts connections and dies.
         condition: service_healthy
+      catalog:
+        condition: service_started
     environment:
+      <<: *db-env
       SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:?set SPRING_PROFILES_ACTIVE (local|dev|prod)}
-      # Host is "mysql" - the service name on this project's compose network. NOT
-      # localhost: inside a container localhost is the container itself.
-      DB_URL: "jdbc:mysql://mysql:3306/${MYSQL_DATABASE:-superdive}?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC"
-      DB_USERNAME: root
-      DB_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       JWT_SECRET: ${JWT_SECRET:?set JWT_SECRET in your env file}
       JWT_EXPIRATION: ${JWT_EXPIRATION:-86400000}
       CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:?set CORS_ALLOWED_ORIGINS in your env file}
+      CATALOG_HOST: catalog
+      # Must match spring.grpc.server.port in the catalog's application.properties.
+      CATALOG_PORT: 9091
     ports:
       # Loopback only - nginx on the host terminates TLS and proxies to this.
       - "127.0.0.1:${APP_HOST_PORT:-8080}:8080"

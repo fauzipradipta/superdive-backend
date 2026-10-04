@@ -8,8 +8,13 @@ import org.springframework.context.annotation.Configuration;
 
 import com.example.superdive.catalog.v1.CatalogServiceGrpc;
 
+import io.grpc.CallOptions;
+import io.grpc.Channel;
+import io.grpc.ClientCall;
+import io.grpc.ClientInterceptor;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
+import io.grpc.MethodDescriptor;
 
 /**
  * Client wiring for the superdive-catalog gRPC service.
@@ -29,7 +34,7 @@ public class CatalogClientConfig {
 	@Bean(destroyMethod = "shutdownNow")
 	public ManagedChannel catalogChannel(
 			@Value("${superdive.catalog.host:localhost}") String host,
-			@Value("${superdive.catalog.port:9090}") int port) {
+			@Value("${superdive.catalog.port:9091}") int port) {
 
 		return ManagedChannelBuilder.forAddress(host, port)
 				// Plaintext: catalog is an internal service on a private network.
@@ -41,12 +46,37 @@ public class CatalogClientConfig {
 	@Bean
 	public CatalogServiceGrpc.CatalogServiceBlockingStub catalogStub(
 			ManagedChannel catalogChannel,
-			@Value("${superdive.catalog.deadline-seconds:5}") long deadlineSeconds) {
+			@Value("${superdive.catalog.deadline-seconds:3}") long deadlineSeconds) {
 
 		// A deadline on every call. Without one a stalled catalog would hold
 		// backend request threads open until they time out at the HTTP layer,
 		// turning one slow dependency into a backend-wide outage.
+		//
+		// Applied per call through an interceptor, NOT stub.withDeadlineAfter():
+		// a gRPC deadline is an absolute point in time, so setting it once on this
+		// singleton stub would fix it at startup + N seconds and fail every call
+		// made after that with DEADLINE_EXCEEDED.
 		return CatalogServiceGrpc.newBlockingStub(catalogChannel)
-				.withDeadlineAfter(deadlineSeconds, TimeUnit.SECONDS);
+				.withInterceptors(new DeadlineInterceptor(deadlineSeconds));
+	}
+
+	/** Starts a fresh deadline when each call begins, unless the caller already set one. */
+	static final class DeadlineInterceptor implements ClientInterceptor {
+
+		private final long deadlineSeconds;
+
+		DeadlineInterceptor(long deadlineSeconds) {
+			this.deadlineSeconds = deadlineSeconds;
+		}
+
+		@Override
+		public <ReqT, RespT> ClientCall<ReqT, RespT> interceptCall(
+				MethodDescriptor<ReqT, RespT> method, CallOptions callOptions, Channel next) {
+
+			CallOptions options = (callOptions.getDeadline() == null)
+					? callOptions.withDeadlineAfter(deadlineSeconds, TimeUnit.SECONDS)
+					: callOptions;
+			return next.newCall(method, options);
+		}
 	}
 }

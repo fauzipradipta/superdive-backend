@@ -24,6 +24,18 @@ git fetch --prune origin
 git checkout "$BRANCH"
 git reset --hard "origin/$BRANCH"
 
+# The catalog lives in its own repo (gRPC-projects). Bring its checkout to the
+# same branch, so the catalog image and the backend's generated stubs both come
+# from the .proto that matches this backend.
+CATALOG_SRC="$(grep -E '^CATALOG_SRC=' "$ENV_FILE" | cut -d= -f2- || true)"
+CATALOG_SRC="${CATALOG_SRC:-../gRPC-projects}"
+[ -d "$CATALOG_SRC/.git" ] || { echo "missing catalog checkout at $CATALOG_SRC - git clone https://github.com/fauzipradipta/gRPC-projects.git there" >&2; exit 1; }
+
+echo "==> $ENV_NAME: pulling catalog $BRANCH in $CATALOG_SRC"
+git -C "$CATALOG_SRC" fetch --prune origin
+git -C "$CATALOG_SRC" checkout "$BRANCH"
+git -C "$CATALOG_SRC" reset --hard "origin/$BRANCH"
+
 echo "==> $ENV_NAME: building and restarting"
 docker compose --env-file "$ENV_FILE" up -d --build
 
